@@ -49,6 +49,8 @@ module ov5640_ctrl #(
 
     localparam integer MS_CYCLES = CFG_CLK_FREQ / 1000;
 
+`include "ov5640_init_table.vh"
+
     reg [7:0] sccb_rd_lo;
 
     // ------------------------------------------------------------------

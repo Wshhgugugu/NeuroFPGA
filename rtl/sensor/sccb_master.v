@@ -125,11 +125,10 @@ module sccb_master #(
                                     state <= S_RDBIT;     // 器件地址+R 已应答 -> 收数
                                 end else if (byte_idx == 3'd2) begin
                                     // 地址发完: 读 -> RSTART, 写 -> 数据
+                                    byte_idx <= 3'd3;
                                     if (rden_r) state <= S_RSTART;
-                                    else begin
-                                        byte_idx <= 3'd3;
+                                    else
                                         cur_byte <= wr_data;
-                                    end
                                 end else begin
                                     byte_idx <= byte_idx + 1;
                                     cur_byte <= (byte_idx == 3'd0) ? reg_addr[15:8] :
@@ -166,7 +165,7 @@ module sccb_master #(
                         2'd1: scl     <= 1'b1;
                         2'd2: begin
                             shreg <= {shreg[6:0], sda};
-                            if (bit_idx == 4'd8) rd_data <= {shreg[6:0], sda};
+                            if (bit_idx == 4'd8) rd_data <= shreg;
                         end
                         2'd3: begin
                             scl <= 1'b0;

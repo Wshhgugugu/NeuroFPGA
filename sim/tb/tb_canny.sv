@@ -49,8 +49,9 @@ module tb_canny;
         $readmemh(gold_file, gold);
     end
 
-    // ---- 喂图 (契约: 行间 4 空拍) ----
+    // ---- 喂图 (契约: 行间 >=4 空拍; 本实验加随机行中气泡) ----
     integer y, x, g;
+    integer bub;
     initial begin : feed
         repeat (5) @(posedge clk);
         rst_n = 1;
@@ -58,6 +59,12 @@ module tb_canny;
 
         for (y = 0; y < SZ; y = y + 1) begin
             for (x = 0; x < SZ; x = x + 1) begin
+                // 随机 0-2 拍行中气泡 (模拟 CDC 读侧空泡)
+                bub = ($random % 3 + 3) % 3;
+                for (g = 0; g < bub; g = g + 1) begin
+                    @(posedge clk);
+                    s_valid <= 0; s_sof <= 0; s_eol <= 0; s_eof <= 0;
+                end
                 @(posedge clk);
                 s_valid <= 1;
                 s_data  <= stim[y*SZ + x];
