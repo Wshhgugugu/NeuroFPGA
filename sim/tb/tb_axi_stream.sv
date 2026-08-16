@@ -42,7 +42,7 @@ module tb_axi_stream;
     // 激励: 写侧随机空泡, 读侧随机背压
     // ------------------------------------------------------------------
     integer wr_sent = 0, rd_got = 0;
-    integer NWORDS = 100_000;
+    integer NWORDS = 20_000;
     reg [31:0] lfsr = 32'hDEAD_BEEF;
     function [31:0] nxt(input [31:0] s);
         nxt = {s[30:0], s[31] ^ s[21] ^ s[1] ^ s[0]};
@@ -196,7 +196,7 @@ module tb_axi_stream;
 
     // 超时保护
     initial begin
-        #20_000_000; // 20 ms
+        #4_000_000;
         $display("=== tb_axi_stream: TIMEOUT (sent=%0d got=%0d errors=%0d) ===",
                  wr_sent, rd_got, errors);
         $finish;

@@ -40,7 +40,7 @@ module fifo_async #(
         else          begin wbin <= wnext; wgray <= wgray_next; end
 
     always @(posedge wclk)
-        if (wr_en & ~full) mem[wnext[AW-1:0]] <= wdata;
+        if (wr_en & ~full) mem[wbin[AW-1:0]] <= wdata;   // 先写当前指针, 后递增
 
     // ---- 读指针 & 格雷 ----
     reg  [AW:0] rbin;

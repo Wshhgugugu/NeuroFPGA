@@ -26,12 +26,7 @@ module line_buffer #(
         if (!rst_n)          waddr <= 0;
         else if (clken)      waddr <= (waddr == LW-1) ? {AW{1'b0}} : waddr + 1'b1;
 
-    // 读地址: 落后写地址一格 —— 同一拍写入的像素不应被同拍读出,
-    // 要读的是"上一个 bank 的同列"
-    reg [AW-1:0] raddr;
-    always @(posedge clk or negedge rst_n)
-        if (!rst_n)          raddr <= {AW{1'b1}};   // LW-1: 写 0 时读 LW-1 回绕对齐
-        else if (clken)      raddr <= (raddr == LW-1) ? {AW{1'b0}} : raddr + 1'b1;
+    // 读地址 = 当前列号 (与写同列, 读的是另一个 bank = 上一行同列)
 
     // 双 bank 乒乓 BRAM
     reg [DW-1:0] mem [0:2*LW-1];
@@ -39,7 +34,7 @@ module line_buffer #(
     initial for (i = 0; i < 2*LW; i = i + 1) mem[i] = {DW{1'b0}};
 
     wire [AW:0] wbank_addr = {wr_row_sel, waddr};
-    wire [AW:0] rbank_addr = {~wr_row_sel, raddr};
+    wire [AW:0] rbank_addr = {~wr_row_sel, waddr};   // 同列, 另一 bank
 
     always @(posedge clk)
         if (clken) mem[wbank_addr] <= din;
