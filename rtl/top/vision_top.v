@@ -187,7 +187,11 @@ module vision_top #(
             );
 
             // 读侧: 空即停; 每 W 像素后强制 >=4 拍间隙 (窗口契约)
+            // sof 逐帧重装: 数行到 IMG_H-1 行末 → 下一帧首字带 sof
+            //   (FIFO 排空后跨帧场景下 ch_rd_sof_pending 曾不重装,
+            //    帧起 forever 丢失 — tb_brain 连续帧流逼出的真 bug)
             reg [10:0] ch_rd_cnt;
+            reg [9:0]  ch_rd_row;
             reg        ch_rd_sof_pending;
             reg        ch_s_valid_p;
             reg [7:0]  ch_s_data_p;
@@ -196,7 +200,8 @@ module vision_top #(
 
             always @(posedge clk_proc or negedge rst_n_proc) begin
                 if (!rst_n_proc) begin
-                    ch_rd_cnt <= 0; ch_rd_gap <= 0; ch_rd_sof_pending <= 1;
+                    ch_rd_cnt <= 0; ch_rd_row <= 0; ch_rd_gap <= 0;
+                    ch_rd_sof_pending <= 1;
                     ch_s_valid_p <= 0; ch_s_data_p <= 0;
                     ch_gap_cnt <= 0; ch_s_sof_p <= 0;
                 end else begin
@@ -211,6 +216,11 @@ module vision_top #(
                             ch_rd_cnt <= 0;
                             ch_rd_gap <= 1'b1;      // 行尾: 进 >=4 拍间隙
                             ch_gap_cnt <= 0;
+                            if (ch_rd_row == IMG_H-1) begin
+                                ch_rd_row <= 0;
+                                ch_rd_sof_pending <= 1'b1;   // 帧完: 重装
+                            end else
+                                ch_rd_row <= ch_rd_row + 1'b1;
                         end else
                             ch_rd_cnt <= ch_rd_cnt + 1'b1;
                     end else if (ch_rd_gap) begin
@@ -400,7 +410,11 @@ module vision_top #(
             for (zi = 0; zi < 64; zi = zi + 1) act_mem[zi] <= 0;
         end else begin
             if (e_valid) begin
-                if (e_edge && (ep_y >> 3) < 8)
+                if (e_sof) begin
+                    // 帧首清零 (否则活动跨帧累积, 注意力"化石化")
+                    for (zi = 0; zi < 64; zi = zi + 1) act_mem[zi] <= 0;
+                    ep_frame_done <= 1'b0;   // 本帧 eof 未见 (m_eof 帧间保持高)
+                end else if (e_edge && (ep_y >> 3) < 8)
                     act_mem[{ep_y[5:3], ep_x[5:3]}] <=
                         act_mem[{ep_y[5:3], ep_x[5:3]}] + 1'b1;
                 if (e_eol) begin
@@ -413,7 +427,46 @@ module vision_top #(
         end
     end
 
+    // ------------------------------------------------------------------
+    // 视觉→SNN 自动通路 (数字大脑 Phase A): 帧尾把 act_mem 64 字节搬进
+    // snn_top.act, 搬完自动 run —— SNN 从此消费真实边缘活动流
+    // ------------------------------------------------------------------
+    wire       snn_run_p;        // 前置声明 (toggle 块在下方)
+    reg        act_dump;          // 搬运中
+    reg [6:0]  act_dump_cnt;      // 0..63
+    reg        act_frame_done_r;  // 本帧已搬+已跑 (新帧 sof 清零)
+    reg        snn_ran;
+
+    always @(posedge clk_proc or negedge rst_n_proc) begin
+        if (!rst_n_proc) begin
+            act_dump <= 0; act_dump_cnt <= 0; act_frame_done_r <= 0; snn_ran <= 0;
+        end else begin
+            if (e_valid_v[0] && e_sof_v[0]) begin
+                act_frame_done_r <= 0;   // 新帧: 重开搬运许可
+                snn_ran <= 0;
+            end else if (ep_frame_done && !act_frame_done_r &&
+                         !snn_busy && !act_dump && !snn_ran) begin
+                act_dump <= 1'b1;        // 帧尾启动搬运
+                act_dump_cnt <= 0;
+            end else if (act_dump) begin
+                act_dump_cnt <= act_dump_cnt + 1'b1;
+                if (act_dump_cnt == 7'd63) begin
+                    act_dump <= 1'b0;
+                    act_frame_done_r <= 1'b1;
+                end
+            end else if (act_frame_done_r && !snn_busy && !snn_ran && !snn_run_p) begin
+                snn_ran <= 1'b1;         // 搬运完成 -> 启动本帧推理
+            end
+        end
+    end
+
+    // SNN 活动写口 mux: 自动搬运优先, CPU 手写 (寄存器堆) 保留
+    wire        snn_act_wr_auto = act_dump;
+    wire [5:0]  snn_act_idx_auto = act_dump_cnt[5:0];
+    wire [7:0]  snn_act_wdata_auto = act_mem[act_dump_cnt[5:0]];
+
     // cfg -> proc: SNN 控制 (值稳定两拍; run 脉冲用电平化同步)
+    // (snn_run_p 已在上方 dump FSM 处前置声明)
     reg snn_run_tgl_c, snn_run_tgl_p1, snn_run_tgl_p2, snn_run_tgl_p2d;
     always @(posedge clk_cfg or negedge rst_n_cfg_raw)
         if (!rst_n_cfg_raw) snn_run_tgl_c <= 0;
@@ -428,7 +481,7 @@ module vision_top #(
             snn_run_tgl_p2d <= snn_run_tgl_p2;
         end
     end
-    wire snn_run_p = snn_run_tgl_p2 != snn_run_tgl_p2d;   // 翻转检测 -> 脉冲
+    assign snn_run_p = (snn_run_tgl_p2 != snn_run_tgl_p2d);   // 翻转检测 -> 脉冲
 
     reg act_wr_p1, act_wr_p2;
     reg [5:0] act_idx_p2; reg [7:0] act_wdata_p2;
@@ -454,13 +507,16 @@ module vision_top #(
         else             snn_vth_p2r <= snn_vth;
 
     // 帧完 + SNN 空闲 -> 自动用本帧活动启动 (演示路径)
-    wire snn_run_auto = ep_frame_done && !snn_busy && !snn_run_p;
+    // 自动 run: 搬运完成且本帧未跑 (snn_ran 在 dump FSM 内置位)
+    wire snn_run_auto = act_frame_done_r && !snn_busy && !snn_ran && !snn_run_p;
 
     // dont_touch 实例级保护: 防止后综合优化把 SNN 计算链 (LIF/突触) 判为
     // 死逻辑挖空 (spike_cnt 经 AXI 读回是真实负载, 但 Vivado 仍会删)
     (* dont_touch = "true" *) snn_top #(.NIN(64), .NNEU(NNEU), .TSTEPS(64)) u_snn (
         .clk(clk_proc), .rst_n(rst_n_proc),
-        .act_wr(act_wr_eff), .act_idx(act_idx_p2), .act_wdata(act_wdata_p2),
+        .act_wr(snn_act_wr_auto | act_wr_eff),
+        .act_idx(snn_act_wr_auto ? snn_act_idx_auto : act_idx_p2),
+        .act_wdata(snn_act_wr_auto ? snn_act_wdata_auto : act_wdata_p2),
         .run_start(snn_run_p | snn_run_auto), .vth(snn_vth_p2r),
         .busy(snn_busy), .done(snn_done), .spike_cnt(snn_cnt)
     );

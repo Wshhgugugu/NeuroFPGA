@@ -22,14 +22,15 @@ python scripts/asm8.py mem/prog_adaptive.asm mem/prog_adaptive.hex >/dev/null
 $XV -sv -i rtl/sensor $RTL sim/tb/tb_window.sv sim/tb/tb_stage_gauss.sv sim/tb/tb_scharr.sv sim/tb/tb_canny.sv sim/tb/tb_hyst.sv sim/tb/tb_lif.sv sim/tb/tb_display.sv sim/tb/tb_sccb.sv sim/tb/tb_custom_alu.sv sim/tb/tb_regs.sv sim/tb/tb_cpu.sv sim/tb/tb_framebuf.sv 2>&1 | grep ERROR && exit 1
 $XV -sv -d SIMPLIFIED_CLK -i rtl/sensor -i rtl/top -i rtl/cpu $RTL rtl/top/vision_top.v sim/tb/tb_vision_top.sv 2>&1 | grep ERROR && exit 1
 $XV -sv -d SIMPLIFIED_CLK -i rtl/sensor -i rtl/top -i rtl/cpu $RTL rtl/top/vision_top.v sim/tb/tb_multi.sv 2>&1 | grep ERROR && exit 1
+$XV -sv -d SIMPLIFIED_CLK -i rtl/sensor -i rtl/top -i rtl/cpu $RTL rtl/top/vision_top.v sim/tb/tb_brain.sv 2>&1 | grep ERROR && exit 1
 
 declare -A SNAP
-for tb in tb_window tb_stage_gauss tb_scharr tb_canny tb_hyst tb_lif tb_display tb_sccb tb_custom_alu tb_regs tb_cpu tb_framebuf tb_vision_top tb_multi; do
+for tb in tb_window tb_stage_gauss tb_scharr tb_canny tb_hyst tb_lif tb_display tb_sccb tb_custom_alu tb_regs tb_cpu tb_framebuf tb_vision_top tb_multi tb_brain; do
     $XE $tb -s reg_$tb -debug off 2>&1 | grep -iE '^ERROR' && exit 1
 done
 
 FAIL=0
-for tb in tb_window tb_stage_gauss tb_scharr tb_lif tb_display tb_sccb tb_custom_alu tb_regs tb_cpu tb_framebuf tb_vision_top tb_multi; do
+for tb in tb_window tb_stage_gauss tb_scharr tb_lif tb_display tb_sccb tb_custom_alu tb_regs tb_cpu tb_framebuf tb_vision_top tb_multi tb_brain; do
     R=$($XS reg_$tb --runall 2>&1 | grep -oE 'PASS|FAIL' | head -1)
     printf "%-18s %s\n" "$tb" "$R"
     [ "$R" = "PASS" ] || FAIL=1
