@@ -53,6 +53,18 @@ module tb_cpu;
     initial for (i = 0; i < 16; i = i + 1) snn_cnt[i] = 0;
     initial begin snn_cnt[0] = 200; snn_cnt[1] = 100; end   // activity=150
 
+    // 直方图 (真实实例: 程序轮询 hist_done 并读 bin 算百分位)
+    wire [7:0]  hist_addr;
+    wire [15:0] hist_data;
+    wire        hist_done;
+    reg         h_v = 0, h_sof = 0, h_eof = 0;
+    reg  [11:0] h_mag = 0;
+
+    hist_256 u_hist (
+        .clk(clk), .rst_n(rst_n),
+        .s_valid(h_v), .s_mag(h_mag), .s_sof(h_sof), .s_eof(h_eof),
+        .rd_addr(hist_addr), .rd_data(hist_data), .frame_done(hist_done));
+
     axi_crossbar_wrap #(.NNEU(16)) u_regs (
         .clk(clk), .rst_n(rst_n),
         .s_awvalid(awvalid), .s_awaddr(awaddr), .s_awready(awready),
@@ -63,6 +75,7 @@ module tb_cpu;
         .mode_raw(mode_raw), .th_hi(th_hi), .th_lo(th_lo), .snn_vth(snn_vth),
         .snn_act_wr(snn_act_wr), .snn_act_idx(snn_act_idx),
         .snn_act_wdata(snn_act_wdata), .snn_run_start(snn_run_start),
+        .hist_addr(hist_addr), .hist_data(hist_data), .hist_done(hist_done),
         .canny_busy(canny_busy), .snn_busy(snn_busy), .snn_done(snn_done),
         .snn_cnt(snn_cnt), .cfg_done(cfg_done), .id_ok(id_ok),
         .chip_id(16'h5640));
@@ -74,6 +87,7 @@ module tb_cpu;
     integer last_th = 0;
 
     always @(posedge clk) if (snn_run_start) run_pulses = run_pulses + 1;
+
 
     // 执行轨迹 (调试用: WAIT/JNZ 全打印 + 延时窗口)
     always @(posedge clk) if (u_cpu.state == 2'd2 && (
@@ -94,25 +108,39 @@ module tb_cpu;
 
     initial begin
         repeat (5) @(posedge clk); rst_n = 1;
-        // 等程序跑完 boot + 至少 2 轮自适应 (每轮 ~4.4ms: 延时 8×51k 拍)
-        wait (th_samples >= 4);
-        repeat (100) @(posedge clk);
+        // 等直方图复位清零完成 (S_CLEAR 256 拍)
+        repeat (300) @(posedge clk);
+
+        // 喂一帧已知直方图: mag 3216 (bin 201) × 1200 个, mag 1600 (bin 100) × 5000 个
+        // 预期 (边预算 800/4000, 自顶向下):
+        //   复位清零吃掉~257 拍 → bin201 计~943 ≥ 800 → TH_HI = 201×16 = 3216
+        //   到 bin100 累计 5900 ≥ 4000 → TH_LO = 100×16 = 1600
+        @(posedge clk); h_v <= 1; h_sof <= 1; h_mag <= 12'd3216;
+        repeat (1199) begin @(posedge clk); h_sof <= 0; end
+        repeat (5000) begin @(posedge clk); h_mag <= 12'd1600; end
+        @(posedge clk); h_eof <= 1;
+        @(posedge clk); h_v <= 0; h_eof <= 0;
+
+        // 等程序: boot → 轮询 hist_done → 扫描 → 写阈值
+        wait (th_hi == 12'd3216);
+        repeat (200) @(posedge clk);
 
         // 检查 1: 未停机 (ID 校验通过)
         if (halted) begin errors = errors + 1; $display("[FAIL] CPU HALT (ID 校验失败?)"); end
-        // 检查 2: mode/th_lo
+        // 检查 2: mode
         if (mode_raw !== 2'd1) begin errors = errors + 1; $display("[FAIL] mode=%0d (期望 1)", mode_raw); end
-        if (th_lo  !== 12'd200) begin errors = errors + 1; $display("[FAIL] th_lo=%0d (期望 200)", th_lo); end
-        // 检查 3: TH_HI 逐轮 +16 (592 → 608 → 624)
-        if (th_hi < 12'd624) begin errors = errors + 1;
-            $display("[FAIL] th_hi=%0d 未按 16 递增 (期望 >=624)", th_hi); end
+        // 检查 3: 百分位阈值 (TH_HI=3200, TH_LO=1600)
+        if (th_hi !== 12'd3216) begin errors = errors + 1;
+            $display("[FAIL] th_hi=%0d (期望 3216)", th_hi); end
+        if (th_lo !== 12'd1600) begin errors = errors + 1;
+            $display("[FAIL] th_lo=%0d (期望 1600)", th_lo); end
         // 检查 4: SNN 启动脉冲已发
-        if (run_pulses < 2) begin errors = errors + 1;
+        if (run_pulses < 1) begin errors = errors + 1;
             $display("[FAIL] snn_run_start 仅 %0d 次", run_pulses); end
 
         if (errors == 0)
-            $display("=== tb_cpu: PASS (自适应闭环: TH_HI=%0d, run×%0d) ===",
-                     th_hi, run_pulses);
+            $display("=== tb_cpu: PASS (百分位闭环: TH_HI=%0d TH_LO=%0d, run×%0d) ===",
+                     th_hi, th_lo, run_pulses);
         else
             $display("=== tb_cpu: FAIL errors=%0d ===", errors);
         $finish;
@@ -120,8 +148,8 @@ module tb_cpu;
 
     initial begin
         #50_000_000;   // 50ms 超时
-        $display("=== tb_cpu: TIMEOUT halted=%b th=%0d samples=%0d ===",
-                 halted, th_hi, th_samples);
+        $display("=== tb_cpu: TIMEOUT halted=%b th=%0d/%0d ===",
+                 halted, th_hi, th_lo);
         $finish;
     end
 endmodule

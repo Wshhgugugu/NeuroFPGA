@@ -7,7 +7,7 @@ XV=/e/AMD_FPGA/2025.2/Vivado/bin/xvlog
 XE=/e/AMD_FPGA/2025.2/Vivado/bin/xelab
 XS=/e/AMD_FPGA/2025.2/Vivado/bin/xsim
 
-RTL="rtl/common/sync_2ff.v rtl/common/fifo_async.v rtl/common/line_buffer.v rtl/common/window_kxk.v rtl/sensor/sccb_master.v rtl/sensor/ov5640_ctrl.v rtl/img_proc/gaussian_5x5.v rtl/img_proc/scharr_3x3.v rtl/img_proc/gradient_mag_dir.v rtl/img_proc/median_3x3.v rtl/img_proc/nms.v rtl/img_proc/double_threshold.v rtl/img_proc/hysteresis.v rtl/img_proc/canny_top.v rtl/snn/lif_neuron.v rtl/snn/spike_encoder.v rtl/snn/synapse_array.v rtl/snn/snn_top.v rtl/display/vga_timing.v rtl/display/color_map.v rtl/display/hdmi_tx.v rtl/interconnect/axi_crossbar_wrap.v rtl/interconnect/mode_switch.v rtl/riscv/custom_alu.v rtl/riscv/instr_decoder_ext.v rtl/riscv/vexriscv_wrapper.v rtl/cpu/mcu8.v rtl/cpu/axi_mcu_bridge.v"
+RTL="rtl/common/sync_2ff.v rtl/common/fifo_async.v rtl/common/line_buffer.v rtl/common/window_kxk.v rtl/sensor/sccb_master.v rtl/sensor/ov5640_ctrl.v rtl/img_proc/gaussian_5x5.v rtl/img_proc/scharr_3x3.v rtl/img_proc/gradient_mag_dir.v rtl/img_proc/median_3x3.v rtl/img_proc/nms.v rtl/img_proc/double_threshold.v rtl/img_proc/hysteresis.v rtl/img_proc/hist_256.v rtl/img_proc/canny_top.v rtl/snn/lif_neuron.v rtl/snn/spike_encoder.v rtl/snn/synapse_array.v rtl/snn/snn_top.v rtl/display/vga_timing.v rtl/display/color_map.v rtl/display/hdmi_tx.v rtl/display/framebuf_pp.v rtl/interconnect/axi_crossbar_wrap.v rtl/interconnect/mode_switch.v rtl/riscv/custom_alu.v rtl/riscv/instr_decoder_ext.v rtl/riscv/vexriscv_wrapper.v rtl/cpu/mcu8.v rtl/cpu/axi_mcu_bridge.v"
 
 # 激励与 golden 再生成 (保证一致)
 python scripts/gen_test_image.py --size 64 --pattern edge --out sim/stimulus/test_image_64x64.hex >/dev/null

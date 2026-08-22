@@ -46,6 +46,11 @@ module axi_crossbar_wrap #(
     output reg  [7:0]  snn_act_wdata,
     output reg         snn_run_start,
 
+    // 直方图读口 (hist_256: 地址写入, 数据读回; 准静态)
+    output reg  [7:0]  hist_addr,
+    input  wire [15:0] hist_data,
+    input  wire        hist_done,
+
     input  wire        canny_busy,
     input  wire        snn_busy,
     input  wire        snn_done,
@@ -69,6 +74,7 @@ module axi_crossbar_wrap #(
             snn_vth <= 24'sd8 <<< 16;
             snn_act_wr <= 0; snn_act_idx <= 0; snn_act_wdata <= 0;
             snn_run_start <= 0;
+            hist_addr <= 0;
             s_bvalid <= 0; addr_err <= 0;
         end else begin
             snn_act_wr    <= 1'b0;
@@ -88,6 +94,7 @@ module axi_crossbar_wrap #(
                         snn_act_wr    <= 1'b1;
                     end
                     12'h020: snn_run_start <= s_wdata[0];
+                    12'h080: hist_addr <= s_wdata[7:0];
                     12'h000, 12'h018, 12'h030, 12'h034, 12'h038, 12'h03C,
                     12'h040, 12'h044, 12'h048, 12'h04C, 12'h050, 12'h054,
                     12'h058, 12'h05C, 12'h060, 12'h064: ; // RO: 忽略写
@@ -115,6 +122,8 @@ module axi_crossbar_wrap #(
                     12'h010: s_rdata <= {8'd0, snn_vth};
                     12'h018: s_rdata <= {23'd0, addr_err, 3'd0, canny_busy,
                                          snn_busy, snn_done, cfg_done, id_ok};
+                    12'h080: s_rdata <= {24'd0, hist_data};
+                    12'h084: s_rdata <= {31'd0, hist_done};
                     default: s_rdata <= 32'hDEAD_BEEF;
                 endcase
             end

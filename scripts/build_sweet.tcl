@@ -10,7 +10,7 @@ set rtl_files [list \
   rtl/img_proc/gaussian_5x5.v rtl/img_proc/scharr_3x3.v \
   rtl/img_proc/gradient_mag_dir.v rtl/img_proc/median_3x3.v \
   rtl/img_proc/nms.v rtl/img_proc/double_threshold.v \
-  rtl/img_proc/hysteresis.v rtl/img_proc/canny_top.v \
+  rtl/img_proc/hist_256.v rtl/img_proc/hysteresis.v rtl/img_proc/canny_top.v \
   rtl/snn/lif_neuron.v rtl/snn/spike_encoder.v \
   rtl/snn/synapse_array.v rtl/snn/snn_top.v \
   rtl/display/framebuf_pp.v rtl/display/vga_timing.v rtl/display/color_map.v rtl/display/hdmi_tx.v \
@@ -26,7 +26,7 @@ read_xdc constraints/io_standard.xdc
 
 synth_design -top vision_top -part xc7z020clg484-1 \
     -generic NCHAN=2 -generic SOFT_CTRL=2 \
-    -generic CLK_MULT=21.0 -generic CLK_DIV0=6.0 -generic CLK_DIV1=14 \
+    -generic CLK_MULT=20.4 -generic CLK_DIV0=6.0 -generic CLK_DIV1=13 \
     -include_dirs [list $proj_root/rtl/sensor $proj_root/mem]
 
 report_utilization -file out/util_sweet.rpt

@@ -15,11 +15,13 @@
 4. [逐模块精讲](#4-逐模块精讲)
 5. [验证方法论（怎么证明硬件是对的）](#5-验证方法论)
 6. [时序收敛实战（-8.15ns 到 +0.32ns）](#6-时序收敛实战)
-7. [多核扩展（NCHAN 机制）](#7-多核扩展)
-8. [运行手册（命令大全）](#8-运行手册)
-9. [性能与资源总账](#9-性能与资源总账)
-10. [踩坑大全（血泪教训）](#10-踩坑大全)
-11. [词汇表](#11-词汇表)
+7. [多核扩展与甜点配置](#7-多核扩展与甜点配置)
+8. [自研 CPU：mcu8 与自适应控制闭环](#8-自研-cpumcu8-与自适应控制闭环)
+9. [显示链：乒乓帧存与 TMDS 输出](#9-显示链乒乓帧存与-tmds-输出)
+10. [运行手册（命令大全）](#10-运行手册)
+11. [性能与资源总账](#11-性能与资源总账)
+12. [踩坑大全（血泪教训）](#12-踩坑大全)
+13. [词汇表](#13-词汇表)
 
 ---
 
@@ -145,8 +147,11 @@ cfg→proc 走"值稳定两拍同步"（阈值类配置），proc→cfg 走握�
    高斯 → Scharr → 幅值/方向 → 中值 → NMS → 双阈值 → 滞回。
    每级之间是统一的 `valid/sof/eol/eof + data` 流式接口。
 5. **SNN 活动池化**：边缘图按 8×8 分箱累加到 `act_mem[64]`，
-   帧结束时自动启动一次 64 时间步推理，脉冲计数可从寄存器读回。
-6. **显示**（pix 域）：VGA 时序发生器出同步信号（LCD 适配是 Phase 9 板级内容）。
+   帧结束时自动启动一次 64 时间步推理，脉冲计数可从寄存器读回；
+   **mcu8 CPU 轮询这些计数，自动调节 Canny 阈值**（见第 8 章）。
+6. **显示**（pix 域，已实现）：通道 0 边缘写入乒乓帧存（proc→pix 双时钟），
+   VGA 时序扫描读出 → `color_map`（模式 1 红边/2 热力图/3 混合）→
+   `hdmi_tx` 编成 TMDS 码字输出（见第 9 章）。
 
 ### 3.3 控制面（配置与状态）
 
@@ -286,15 +291,31 @@ TH_LO~TH_HI = 弱边缘（看邻居）；< TH_LO = 丢弃。每像素 2 bit 分�
   DVP 采集域单独复位，`cfg_done` 之前不放开——防止摄像头复位期间
   引脚悬空抖动灌进伪数据。
 
-### 4.10 顶层 `vision_top`（395 行）
+### 4.10 顶层 `vision_top`
 
-所有模块的组装厂。三个要点：
+所有模块的组装厂。要点：
 - **多核 generate**：`for (gc=0; gc<NCHAN; gc++)` 每通道一套
   FIFO+读侧+Canny（见第 7 章）；
+- **控制面三选一**（`SOFT_CTRL` 参数）：1=内置 FSM，**2=mcu8 自研 CPU**（第 8 章），
+  0=预留 VexRiscv 网表槽位——三者共用同一套 AXI 主 mux，综合期常量折叠；
 - **配置跨域**：阈值走"值稳定两拍"，SNN 启动脉冲走"toggle 翻转检测"；
+- **显示链**：ch0 边缘 → 乒乓帧存 → color_map → hdmi_tx（第 9 章）；
 - **仿真旁路**：`sim_s_valid/sim_s_data` 绕过传感器直接注入像素流
   （`SIMPLIFIED_CLK` 宏下单时钟域），让端到端 TB 不用等 180ms 的
   SCCB 配置仿真。
+
+### 4.11 `mcu8` + `axi_mcu_bridge`——自研 8 位 CPU（详见第 8 章）
+
+控制面大脑：26 条指令、2 拍/条、1024×18 程序 ROM 正好装满 1 个 RAMB18。
+桥把它的 8 位 MMIO 端口转成 AXI4-Lite，附 16 字节 scratchpad。
+实测 249+57 LUT——比任何软核都小两个数量级。
+
+### 4.12 `framebuf_pp`——双时钟乒乓帧存（详见第 9 章）
+
+显示链的核心存储：两页 640×480×1bit 边缘位图（18 个 BRAM36），
+写页在帧尾翻转，读页在场消隐沿跟随——整帧无撕裂。
+注意它的读口形状是"两数组独立同步读 + 输出外部 mux"，
+这个形状是 BRAM 推断的生死线（见踩坑 11）。
 
 ---
 
@@ -315,17 +336,17 @@ TH_LO~TH_HI = 弱边缘（看邻居）；< TH_LO = 丢弃。每像素 2 bit 分�
 ### 5.2 测试金字塔
 
 ```
-                 tb_vision_top / tb_multi     端到端 (整系统, 慢, 抓集成问题)
-              ┌──────────────────────────┐
-              │ tb_canny ×4图案            │  流水线级 (7模块串联 vs golden)
-              ├──────────────────────────┤
-              │ tb_hyst/tb_scharr/...     │  单模块 (快, 定位容易)
-              ├──────────────────────────┤
-              │ tb_axi_stream/tb_window   │  基础设施 (FIFO/窗口引擎)
-              └──────────────────────────┘
+              tb_vision_top / tb_multi        端到端 (整系统+多核隔离)
+            ┌──────────────────────────────┐
+            │ tb_canny ×4图案 / tb_cpu      │  流水线级 + CPU 闭环
+            ├──────────────────────────────┤
+            │ tb_hyst/tb_scharr/tb_lif/...  │  单模块 (快, 定位容易)
+            ├──────────────────────────────┤
+            │ tb_axi_stream/tb_window/tb_framebuf   基础设施
+            └──────────────────────────────┘
 ```
-14 个 TB 全部自检查（打印 PASS/FAIL + $finish），一个脚本跑完：
-`bash scripts/run_regression.sh`（约 5 分钟）。
+16 个 TB 全部自检查（打印 PASS/FAIL + $finish），一个脚本跑完：
+`bash scripts/run_regression.sh`（约 6 分钟，自动汇编 CPU 程序后连跑）。
 
 ### 5.3 流式 TB 的写法要点
 
@@ -423,28 +444,132 @@ BRAM 输出路径差 0.67ns。降 9% 时钟换收敛，性价比合理。
 `tb_multi`（NCHAN=2）双通道**同时**喂不同图案，各自对比独立 golden——
 4096+4096 像素全部位精确，证明通道间零串扰。
 
+### 7.4 甜点配置：处理速度跟得上输入速度的最佳平衡
+
+"核越多越好"是错觉——**甜点是处理吞吐恰好覆盖输入供给上限**：
+
+| 维度 | 数据 | 推论 |
+|---|---|---|
+| 输入天花板 | 16bit DVP@150MHz ≈ 300M px/s（无 MIPI 硬核） | 目标 300M |
+| 每核吞吐 | 175~180M px/s | **2 核 = 350M ≥ 300M** ✓ |
+| SNN | 推理 356ns vs 帧周期 33ms（9 万倍余量） | 1 个分时复用 |
+| 4 核 | 660M 无输入能喂饱，白吃 40 BRAM 还挤压布线 | 排除 |
+
+**甜点 = 2×Canny + 1×SNN + 1×mcu8 CPU**。资源只动用 LUT 21% / BRAM 44%，
+却已饱和本板一切可能的输入。第 11 章的"容量极限"配置（4 核 BRAM 72%）
+展示的是余量上限，不是推荐配置。
+
 ---
 
-## 8. 运行手册
+## 8. 自研 CPU：mcu8 与自适应控制闭环
 
-### 8.1 环境
+### 10.1 为什么自己造 CPU
+
+系统需要一个小小的"控制面大脑"：轮询 SNN 脉冲计数、调节 Canny 阈值、
+发启动命令。三个选项：外置软核（VexRiscv，需 Scala 工具链）、
+PicoBlaze（Xilinx 专有）、**自己写一个**。我们选了第三条——
+不到 300 行 Verilog + 100 行 Python 汇编器，零外部依赖，且教学价值最高。
+
+### 10.2 mcu8 架构（`rtl/cpu/mcu8.v`）
+
+```
+     ┌────────────────────────────────────────┐
+     │ 8×8bit 寄存器  Z/C 标志  10bit PC/LR    │
+     │ 1024×18 程序ROM(1个RAMB18) ──▶ 译码/ALU │──▶ MMIO 端口
+     │ 两态执行: FETCH→EXEC (约2拍/条)          │
+     └────────────────────────────────────────┘
+```
+
+- **26 条指令**：LD/ST（MMIO）、MOVI/MOV、加减/逻辑/移位、CMP、
+  6 种条件跳转、CALL/RET（单层链接寄存器，无栈）、WAIT（256×imm8 拍延时）、HALT
+- **18-bit 指令编码**：`op[17:12] | sX[11:9] | sY[8:6] | imm8/a10`
+- **跳转地址转发**：EXEC 拍若发生重定向，ROM 同拍改读目标地址，
+  分支后无需额外等待拍
+- 50MHz 的 cfg 域上跑出 25 MIPS——控制循环每帧 33ms 有 82 万条指令预算
+
+### 10.3 汇编器与程序（`scripts/asm8.py` + `mem/prog_adaptive.asm`）
+
+两遍扫描汇编器（标签/十六进制/十进制立即数），105 条指令实现闭环：
+
+```
+读 ID 验证总线 → 设 MODE/TH_LO → 主循环 {
+    写 TH_HI = th16×16 → 启动 SNN → 读 SNN_CNT[0..1]
+    activity = (c0+c1)/2 ;  >96 升阈值 / <32 降阈值 (±16, 夹 224~976)
+    延时 8ms (≈每帧一调) }
+```
+
+寄存器约定是写汇编前先想清楚的事：r1/r2=AXI 地址（子程序不改写）、
+r3~r6=数据字节、r0=子程序内部临时、**r7=阈值影子寄存器**。
+跨子程序调用的数据放桥的 16 字节 scratchpad（端口 0x50~0x5F）。
+
+### 10.4 验证（`tb_cpu`）
+
+固定活动 150 → 观察 TH_HI 逐轮 592→608→624（每轮精确 +16）、
+SNN 启动脉冲周期发放。CPU+桥+寄存器堆三方闭环，全部行为可预测。
+
+### 10.5 一个经典 CPU 设计 bug（见踩坑 12）
+
+ALU 的 Z 标志在算术指令里从未被计算（组合块开头默认继承旧值），
+`SUBI r0,1` 减到 0 时 JNZ 仍跳转——死循环。靠执行轨迹逐拍打印定位。
+
+---
+
+## 9. 显示链：乒乓帧存与 TMDS 输出
+
+### 11.1 数据通路
+
+```
+proc 域                              pix 域 (75MHz)
+ch0 e_valid/e_edge ──▶ framebuf_pp ──▶ color_map ──▶ hdmi_tx ──▶ tmds_*[9:0]
+   (y×W+x 写地址打一拍)   乒乓两页      4 种模式      TMDS 8b/10b
+                          18 BRAM                   + 消隐 ctrl 码
+```
+
+### 11.2 乒乓帧存为什么零撕裂（`rtl/display/framebuf_pp.v`）
+
+一页在写、一页在读，**换页时机**是关键：
+- 写侧在 `e_eof`（帧尾）翻转写页选择；
+- 读侧在 **vsync 下降沿**（场消隐起点，屏幕不在画任何东西）采样
+  同步过来的写页选择，切换读页。
+
+于是任何时刻读的都是"上一帧的完整静态副本"，显示更新天然原子化。
+写页选择是单 bit 电平（30Hz 翻转），用 `sync_2ff` 跨域即可。
+
+### 11.3 灰度去哪了
+
+8bit 灰度全分辨率乒乓需要 2×67=134 个 BRAM——超预算。取舍：
+只存 edge 位图（18 BRAM），模式 1 显示红边黑底、模式 2 热力图、
+模式 3 混合——视觉信息保住了，模式 0（纯灰度）退化为黑屏。
+若未来要灰度：单页 67 BRAM 会把 4 核配置挤爆，需先做 DDR 帧存。
+
+### 9.4 color_map 的对齐技巧
+
+BRAM 同步读晚一拍，但 `color_map` 内部是"数据/DE 同步两拍流水"——
+把 BRAM 输出连同**晚一拍的 DE** 喂给它，像素与使能自动重新对齐，
+不需要任何地址补偿。这是一种免费的对齐手段，值得记住。
+
+---
+
+## 10. 运行手册
+
+### 10.1 环境
 
 - Vivado 2025.2（含 xsim 仿真器，无需第三方工具）
 - Python 3（生成测试图和 golden model，只用标准库）
 - 路径假设：项目在 `E:/AMD_FPGA/Projects/Sim_GPU - Copy`，
   Vivado 在 `E:/AMD_FPGA/2025.2`
 
-### 8.2 全量仿真回归（改完代码先跑这个）
+### 10.2 全量仿真回归（改完代码先跑这个）
 
 ```bash
 cd "E:/AMD_FPGA/Projects/Sim_GPU - Copy"
 bash scripts/run_regression.sh
 ```
-预期输出：14 行 PASS + `REGRESSION ALL PASS`（10 个单模块 TB + tb_multi 双核 +
-canny×4 图案，约 6 分钟）。
-脚本会先重新生成测试图案和 golden（保证一致性）再编译仿真。
+预期输出：16 行 PASS + `REGRESSION ALL PASS`（11 个单模块/闭环 TB +
+tb_vision_top + tb_multi + canny×4 图案，约 6 分钟）。
+脚本会先重新生成测试图案和 golden、**汇编 mcu8 程序**再编译仿真。
 
-### 8.3 单跑一个 TB
+### 10.3 单跑一个 TB
 
 ```bash
 # 编译 RTL + TB (模块自己依赖的文件要在列表里)
@@ -457,71 +582,89 @@ canny×4 图案，约 6 分钟）。
 **警告**：改了 RTL 后必须重新 `xvlog`，否则 xelab 用的是旧库——
 本项目曾因残留旧库连追 3 个假 bug。如果行为诡异，先删 `xsim.dir/` 重来。
 
-### 8.4 综合 + 布局布线
+### 10.4 综合 + 布局布线
 
 ```bash
+# 甜点配置 (推荐: 2核+CPU+SNN+显示 @175MHz)
+/e/AMD_FPGA/2025.2/Vivado/bin/vivado -mode batch -source scripts/build_sweet.tcl
+
+# 容量极限 (4核+全套 @165MHz)
+/e/AMD_FPGA/2025.2/Vivado/bin/vivado -mode batch -source scripts/build_max.tcl
+
 # 单核 (默认 180MHz)
 /e/AMD_FPGA/2025.2/Vivado/bin/vivado -mode batch -source scripts/build.tcl
 
-# 多核: NCHAN 可选, 时钟参数 = MULT DIV0 DIV1
-/e/AMD_FPGA/2025.2/Vivado/bin/vivado -mode batch -source scripts/build_multi.tcl -tclargs 2          # 2核180MHz
-/e/AMD_FPGA/2025.2/Vivado/bin/vivado -mode batch -source scripts/build_multi.tcl -tclargs 4 19.8 6 13  # 4核165MHz
+# 多核自定义: NCHAN + 时钟参数 MULT DIV0 DIV1
+/e/AMD_FPGA/2025.2/Vivado/bin/vivado -mode batch -source scripts/build_multi.tcl -tclargs 4 19.8 6 13
 ```
 看结果：`out/timing_summary.rpt`（搜 "Failing Endpoints"）和
-`out/utilization.rpt`。日志末尾有 `RESULT: WNS = x.xxx ns`。
-产物：`out/vision_top_routed.dcp`（单核）/ `out/vision_top_nchan*.dcp`。
+`out/util_sweet.rpt`。日志末尾有 `RESULT: WNS = x.xxx ns`。
+产物：`out/vision_top_sweet.dcp`（甜点）/ `out/vision_top_routed.dcp`（单核）。
 
-### 8.5 目录速查
+### 10.5 汇编 mcu8 程序（改控制逻辑时）
+
+```bash
+python scripts/asm8.py mem/prog_adaptive.asm mem/prog_adaptive.hex
+```
+改 `.asm` 后必须重新汇编；回归脚本会自动做这步。
+
+### 10.5 目录速查
 
 ```
 rtl/common/     基础设施: sync_2ff, fifo_async, window_kxk, line_buffer
 rtl/sensor/     摄像头: sccb_master, ov5640_ctrl
 rtl/img_proc/   Canny 7 级: gaussian→scharr→mag_dir→median→nms→dthreshold→hysteresis, canny_top
 rtl/snn/        神经网络: lif_neuron, spike_encoder, synapse_array, snn_top
-rtl/display/    vga_timing, color_map, hdmi_tx
+rtl/display/    vga_timing, color_map, hdmi_tx, framebuf_pp (乒乓帧存)
 rtl/interconnect/ axi_crossbar_wrap (寄存器堆), mode_switch
 rtl/riscv/      custom_alu, instr_decoder_ext, vexriscv_wrapper
+rtl/cpu/        mcu8 (自研 8 位 CPU), axi_mcu_bridge (MMIO→AXI 桥)
 rtl/top/        vision_top (组装)
-sim/tb/         14 个测试平台
-scripts/        golden_model.py, gen_test_image.py, run_regression.sh, build*.tcl
+sim/tb/         16 个测试平台
+scripts/        golden_model.py, gen_test_image.py, asm8.py, run_regression.sh, build*.tcl
 constraints/    pins.xdc(引脚) timing.xdc(时钟例外) io_standard.xdc(电气标准)
-mem/            摄像头寄存器表 / SNN 权重
+mem/            摄像头寄存器表 / SNN 权重 / prog_adaptive.asm+hex (CPU 程序)
 doc/            本指南 + architecture.md + register_map.md
 ```
 
 ---
 
-## 9. 性能与资源总账
+## 11. 性能与资源总账
 
-### 9.1 资源（单核 180MHz，布线后实测）
+### 11.1 资源（两个收敛配置，布线后实测）
 
-| 资源 | 用量 | 占比 | 大头在哪 |
+| 资源 (总量) | 甜点+显示 @175MHz | 容量极限 @165MHz | 大头在哪 |
 |---|---|---|---|
-| LUT | ~4100 | 7.6% | Canny 2660 + CDC FIFO 524 + 采集 280 |
-| FF | 2251 | 2.1% | 流水线寄存器（时序收敛的代价，值得）|
-| BRAM36 | 20 | 14.3% | **全部**在滞回的双帧位图（这是核数天花板）|
-| DSP | 4 | 1.8% | 方向量化的 3 个乘法 + 采集域 1 个 |
+| LUT (53200) | 11.1k / 20.9% | 18.8k / 35.3% | Canny×2~4 + SNN 2541 + CPU 306 |
+| FF (106400) | 8.8k / 8.3% | 14.6k / 13.7% | 流水线寄存器（时序收敛的代价，值得）|
+| BRAM36 (140) | 61 / 43.6% | **101 / 72.1%** | Canny 帧存 20/核 + 显示帧存 18 + ROM×2 |
+| DSP (220) | 9 / 4.1% | 15 / 6.8% | 方向量化 + 帧存地址乘法 |
 
-### 9.2 性能
+甜点配置构成：2×Canny(40 BRAM) + 显示乒乓帧存(18) + CPU 程序 ROM(1) +
+SNN 突触(1) + FIFO/杂项(~1)。
 
-- **单核吞吐**：180M 像素/秒（VGA@30 只用掉 5%，4K@21fps 或 1080p@87fps）
-- **4 核吞吐**：660M 像素/秒（4K@79fps，2K@178fps）
+### 11.2 性能
+
+- **甜点吞吐**：350M 像素/秒（1080p@169fps / 2K@95fps / 4K@42fps）
+- **极限吞吐**：660M 像素/秒（4K@79fps）——喂不饱，仅证明容量
 - **端到端延迟**：约 1 帧期——行缓冲 ~10 行 + 级间流水 ~30 拍 + 滞回 2~3 轮整帧遍历
-- **SNN 推理**：64 步 × 5.56ns = 356ns@165MHz，每帧白送
-- **功耗**（Vivado vectorless 估算）：0.277W，其中 MMCM 占动态的 69%
+- **SNN 推理**：64 步 ≈ 0.37~0.39ms，每帧白送
+- **CPU 自适应周期**：~8ms/次（可编程，WAIT 指令定时）
 
-### 9.3 天花板分析（为什么停在这）
+### 11.3 天花板分析（还能怎么压榨）
 
-1. **BRAM 140 个**：每核滞回要 20 个 → 绝对上限 6 核（VGA 参数下）。
-   2K 以上必须把帧图搬进 DDR（Zynq 的 PS 侧有 1GB DDR3）——那是
-   下一个阶段的工程。
-2. **布线拥塞**：4 核 80 个 BRAM 已让 180MHz 差 0.67ns。
-3. **输入带宽**：DVP 8 位并口 ~56MHz。660M px/s 的处理能力需要
-   MIPI 或多路并口才喂得饱——**当前瓶颈已在芯片外**。
+1. **BRAM 140 个**：甜点配后余 79 个——够 +2 核（6 核封顶 134/140）或
+   一页 8bit 灰度帧存（67）。**再往上必须 DDR 帧存**（PS 侧有 1GB DDR3）。
+2. **LUT 65~79% 闲置**：可容纳 NNEU=64 的大 SNN（+7k LUT）、
+   直方图/Otsu 自动阈值等算法增强。
+3. **DSP 93%+ 闲置**：当前负载用不上——若做 5×5 全乘法卷积或
+   亚像素方向计算才有意义。
+4. **输入带宽**：甜点已饱和本板一切输入路径（16bit DVP 天花板 300M）。
+   **当前瓶颈在芯片外**——继续堆计算只是余量。
 
 ---
 
-## 10. 踩坑大全
+## 12. 踩坑大全
 
 每一条都是真实发生、真实浪费过时间的。按"你可能也会踩"排序。
 
@@ -557,10 +700,36 @@ doc/            本指南 + architecture.md + register_map.md
    才炸。**教训**：综合后立刻查 `report_utilization` 的 IO 数；
    约束文件当代码维护，改名要同步。
 10. **TB 依赖固定延迟**：见 5.3。流水线一改 TB 全废。流式对比是唯一正解。
+11. **读语句里嵌"数组选择 mux"引爆 BRAM 推断**（本项目撞了三次！）：
+    `rd <= sel ? mem1[a] : mem0[a];` 让 Vivado 放弃 BRAM、摊成分布式 RAM
+    （帧存版本直接爆 22k LUTRAM）。同族坑：2D 数组+组合遍历（22908 LUT）、
+    BRAM 异步读（30 万 LUT）。**正解都是同一个**：让每个存储阵列保持
+    "独立进程、同步读、标准单端口形状"，选择 mux 放到输出寄存器之后。
+12. **自研 CPU 的 Z 标志从未被计算**：ALU 组合块开头 `alu_z = f_z`（默认
+    继承旧值），算术指令只置了 flag_z_en 没算新值——SUBI 减到 0 时 JNZ
+    仍跳转，延时循环死转。**教训**：CPU 的标志位必须在每条会写标志的
+    指令末尾统一重算（我们在 case 后加了一句兜底）。
+13. **拼接运算结果恒为无符号**：LIF 流水化时写 `vnext >= {{2{vth[23]}}, vth}`，
+    右侧拼接是无符号数，有符号比较被静默提升为无符号——负输入神经元
+    全部假发放（gold=0 的神经元计到 22）。**教训**：符号扩展用
+    `$signed({{N{x[N-1]}}, x})` 显式包裹，或用位宽声明的 signed localparam。
+14. **DSP 乘法直怼 BRAM 写口**：帧存写地址 `y*W+x` 的 DSP 输出直接进
+    BRAM 地址/写使能，175MHz 差 2ns。**教训**：地址生成后打一拍再进
+    存储（一拍延迟对流式写无害）。
+15. **CDC 约束要成清单逐条核对**：本项目最终在 timing.xdc 里维护了
+    9 组 false_path（复位/阈值/SNN 控制/桥状态/帧存页选/mode/计数读回…）。
+    新增任何跨域信号时第一件事就是补约束——否则它会在几轮构建后的
+    某次布局里以 -3ns 的面目出现（mode_switch 那条藏了 -2.9ns）。
+    **教训**：每条 CDC 在代码注释里标注"约束见 timing.xdc 第 N 条"。
+16. **综合器会悄悄挖空"看起来有负载"的模块**：SNN 的尖峰计数明明有
+    AXI 读回负载，后综合优化仍把 LIF/突触计算链判死删除，只剩 60 个
+    cell 的空壳——资源报告里根本看不出来。**教训**：对必须存在的
+    加速器加实例级 `(* dont_touch = "true" *)`，并在最终网表里核对
+    关键内部寄存器数量（我们用 `get_cells *u_lif/v_reg*` 应为 384）。
 
 ---
 
-## 11. 词汇表
+## 13. 词汇表
 
 | 术语 | 一句话解释 |
 |---|---|
@@ -591,7 +760,13 @@ doc/            本指南 + architecture.md + register_map.md
 | MMCM | 时钟频率合成硬核（倍频/分频/移相）|
 | LIF 神经元 | Leak Integrate-and-Fire：积分到阈值就放电清零 |
 | NCHAN | 本项目的并行核数参数 |
-| SOFT_CTRL | 1=用内置 FSM 代替 VexRiscv 软核（免网表依赖）|
+| SOFT_CTRL | 1=内置 FSM，2=mcu8 自研 CPU，0=预留 VexRiscv 网表 |
+| mcu8 | 本项目自研的 8 位控制 CPU（26 指令、2 拍/条、1KB ROM）|
+| MMIO | 内存映射 IO：用"端口号"读写外设（CPU 的 LD/ST 指令）|
+| 乒乓缓冲 ping-pong | 双缓冲交替读写，换页时机错开实现无撕裂显示 |
+| TMDS | DVI/HDMI 的 8b/10b 信道编码（最小跳变+直流平衡）|
+| scratchpad | 桥里给 CPU 的 16 字节暂存（当"内存"用）|
+| 甜点配置 | 处理吞吐恰好覆盖输入上限的性价比最优配置（本项目 2 核）|
 
 ---
 

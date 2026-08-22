@@ -17,6 +17,7 @@ module vision_top #(
     parameter integer MAX_PASS = 64,
     parameter integer NNEU     = 16,
     parameter integer NCHAN    = 1,      // 并行处理核数 (每路独立 Canny 流水线)
+    parameter         GRAY_EN  = 1,      // 1=1/4 分辨率灰度帧存 (显示模式0/1 背景)
     // MMCM: proc = 50MHz * MULT / DIV0 (180MHz=22.5/6.25; 165MHz=19.8/6)
     parameter real    CLK_MULT  = 22.5,
     parameter real    CLK_DIV0  = 6.25,
@@ -144,8 +145,21 @@ module vision_top #(
     // 配置跨域寄存器 (声明前置: generate 内引用须在声明后)
     reg [11:0] th_hi_p1, th_hi_p2, th_lo_p1, th_lo_p2;
 
+    // 直方图统计流 (ch0 NMS 幅值, proc 域; 声明前置供 generate 引用)
+    wire        hist_stat_v;
+    wire [11:0] hist_stat_mag;
+
     wire [NCHAN-1:0] e_valid_v, e_edge_v, e_sof_v, e_eol_v, e_eof_v;
     wire [NCHAN-1:0] canny_busy_v;
+
+    // 通道 0 输入像素流导出 (灰度帧存用)
+    wire        ch0_pix_v, ch0_pix_sof, ch0_pix_eol;
+    wire [7:0]  ch0_pix_d;
+    assign ch0_pix_v   = g_chan[0].ch_s_valid_p;
+    assign ch0_pix_d   = g_chan[0].ch_s_data_p;
+    assign ch0_pix_sof = g_chan[0].ch_s_sof_p;
+    assign ch0_pix_eol = g_chan[0].ch_rd_cnt == IMG_W[10:0]-1 &&
+                         g_chan[0].ch_do_rd;
 
     genvar gc;
     generate
@@ -206,7 +220,10 @@ module vision_top #(
                 end
             end
 
-            // Canny 流水线 (proc 域)
+            // Canny 流水线 (proc 域); ch0 统计口引到顶层 (直方图)
+            wire        ch_stat_v;
+            wire [11:0] ch_stat_mag;
+
             canny_top #(.IMG_W(IMG_W), .IMG_H(IMG_H), .MAX_PASS(MAX_PASS)) u_canny (
                 .clk(clk_proc), .rst_n(rst_n_proc),
                 .s_valid(ch_s_valid_p), .s_sof(ch_s_sof_p), .s_data(ch_s_data_p),
@@ -214,8 +231,14 @@ module vision_top #(
                 .th_hi(th_hi_p2), .th_lo(th_lo_p2),
                 .m_valid(e_valid_v[gc]), .m_edge(e_edge_v[gc]), .m_sof(e_sof_v[gc]),
                 .m_eol(e_eol_v[gc]), .m_eof(e_eof_v[gc]),
+                .stat_valid(ch_stat_v), .stat_mag(ch_stat_mag),
                 .busy(canny_busy_v[gc])
             );
+
+            if (gc == 0) begin : g_stat0
+                assign hist_stat_v   = ch_stat_v;
+                assign hist_stat_mag = ch_stat_mag;
+            end
         end
     endgenerate
 
@@ -265,6 +288,7 @@ module vision_top #(
     wire signed [23:0] snn_vth;
     wire snn_act_wr, snn_run_start;
     wire [5:0] snn_act_idx;
+    wire [7:0] hist_addr;
     wire [7:0] snn_act_wdata;
     (* keep = "true" *) wire [7:0] snn_cnt [0:NNEU-1];
 
@@ -320,6 +344,24 @@ module vision_top #(
     assign mu_arready = (SOFT_CTRL == 2) ? m_arready : 1'b1;
     assign mu_rvalid  = (SOFT_CTRL == 2) ? m_rvalid  : 1'b0;
 
+    // 直方图 (proc 域): ch0 NMS 幅值 → 256 bin; cfg 域经寄存器堆读回
+    // hist_addr (cfg→proc) 值稳定两拍; hist_data/done (proc→cfg) 准静态直采
+    reg [7:0] hist_addr_p1, hist_addr_p2;
+    always @(posedge clk_proc or negedge rst_n_proc) begin
+        if (!rst_n_proc) begin hist_addr_p1 <= 0; hist_addr_p2 <= 0; end
+        else begin hist_addr_p1 <= hist_addr; hist_addr_p2 <= hist_addr_p1; end
+    end
+    wire [15:0] hist_data;
+    wire        hist_done;
+
+    hist_256 u_hist (
+        .clk(clk_proc), .rst_n(rst_n_proc),
+        .s_valid(hist_stat_v), .s_mag(hist_stat_mag),
+        .s_sof(e_sof_v[0] && e_valid_v[0]), .s_eof(e_eof_v[0] && e_valid_v[0]),
+        .rd_addr(hist_addr_p2), .rd_data(hist_data),
+        .frame_done(hist_done)
+    );
+
     axi_crossbar_wrap #(.NNEU(NNEU)) u_regs (
         .clk(clk_cfg), .rst_n(rst_n_cfg_raw),
         .s_awvalid(m_awvalid), .s_awaddr(m_awaddr), .s_awready(m_awready),
@@ -330,6 +372,7 @@ module vision_top #(
         .mode_raw(mode_raw), .th_hi(th_hi), .th_lo(th_lo), .snn_vth(snn_vth),
         .snn_act_wr(snn_act_wr), .snn_act_idx(snn_act_idx),
         .snn_act_wdata(snn_act_wdata), .snn_run_start(snn_run_start),
+        .hist_addr(hist_addr), .hist_data(hist_data), .hist_done(hist_done),
         .canny_busy(canny_busy), .snn_busy(snn_busy), .snn_done(snn_done),
         .snn_cnt(snn_cnt), .cfg_done(cfg_done), .id_ok(id_ok), .chip_id(chip_id)
     );
@@ -467,12 +510,51 @@ module vision_top #(
         end
     end
 
+    // 灰度 1/4 分辨率抽取 (输入流偶行偶列), 坐标跟踪与写流水对齐
+    reg  [9:0] gr_x, gr_y;
+    always @(posedge clk_proc or negedge rst_n_proc) begin
+        if (!rst_n_proc) begin
+            gr_x <= 0; gr_y <= 0;
+        end else begin
+            if (ch0_pix_sof) begin gr_x <= 0; gr_y <= 0; end
+            else if (ch0_pix_v) begin
+                if (ch0_pix_eol) begin
+                    gr_x <= 0;
+                    gr_y <= gr_y + 1'b1;
+                end else
+                    gr_x <= gr_x + 1'b1;
+            end
+        end
+    end
+
+    // 写流水 (与 edge 写同级: 抽取条件 + 地址乘法都打一拍)
+    wire        gwe_c = GRAY_EN && ch0_pix_v && !gr_x[0] && !gr_y[0];
+    wire [16:0] gwaddr_c = (gr_y[8:1] * (IMG_W/2)) + gr_x[9:1];
+    reg         gr_we_r;
+    reg  [16:0] gr_waddr_r;
+    reg  [7:0]  gr_wd_r;
+    always @(posedge clk_proc or negedge rst_n_proc) begin
+        if (!rst_n_proc) begin
+            gr_we_r <= 0; gr_waddr_r <= 0; gr_wd_r <= 0;
+        end else begin
+            gr_we_r    <= gwe_c;
+            gr_waddr_r <= gwaddr_c;
+            gr_wd_r    <= ch0_pix_d;
+        end
+    end
+    // 灰度读地址 (显示 2x2 放大: 取 1/4 分辨率坐标)
+    wire [16:0] gr_raddr = GRAY_EN ?
+        (dsp_y[9:1] * (IMG_W/2)) + dsp_x[9:1] : 17'd0;
+    wire [7:0]  fb_gray;
+
     framebuf_pp #(.IMG_W(IMG_W), .IMG_H(IMG_H)) u_fb (
         .wclk(clk_proc), .wrst_n(rst_n_proc),
         .we(fb_we_r), .waddr(fb_waddr_r), .wd(fb_wd_r),
         .w_frame_end(fb_fe_r),
+        .gwe(gr_we_r), .gwaddr(gr_waddr_r), .gwd(gr_wd_r),
         .rclk(clk_pix), .rrst_n(rst_n_pix),
-        .r_vs(vs), .raddr(fb_raddr), .rd(fb_rd)
+        .r_vs(vs), .raddr(fb_raddr), .rd(fb_rd),
+        .graddr(gr_raddr), .grd(fb_gray)
     );
 
     wire [23:0] disp_rgb;
@@ -480,7 +562,7 @@ module vision_top #(
 
     color_map u_cmap (
         .clk(clk_pix), .rst_n(rst_n_pix),
-        .mode(mode_sync), .gray(8'h00), .edge_bit(fb_rd),
+        .mode(mode_sync), .gray(fb_gray), .edge_bit(fb_rd),
         .snn_heat(snn_cnt), .disp_y(dsp_y), .in_de(de),
         .rgb(disp_rgb), .out_de(disp_de));
 

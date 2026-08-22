@@ -34,6 +34,10 @@ module canny_top #(
     output wire          m_eol,
     output wire          m_eof,
 
+    // 统计出口: NMS 幅值流 (直方图硬件用; 与 m_* 无关的旁路观察口)
+    output wire          stat_valid,
+    output wire [11:0]   stat_mag,
+
     output wire          busy
 );
 
@@ -92,6 +96,9 @@ module canny_top #(
     // ------------------------------------------------------------------
     wire        nm_v, nm_sof, nm_eol, nm_eof;
     wire [13:0] nm_d;
+
+    assign stat_valid = nm_v;
+    assign stat_mag   = nm_d[11:0];
 
     nms #(.IMG_W(IMG_W), .IMG_H(IMG_H)) u_nms (
         .clk(clk), .rst_n(rst_n),

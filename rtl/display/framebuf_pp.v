@@ -20,18 +20,28 @@ module framebuf_pp #(
     input  wire        wd,
     input  wire        w_frame_end,  // 帧尾: 写页翻转 (proc)
 
+    // 灰度 1/4 分辨率通道 (外部已抽取 2x2→1, 地址 = (y/2)*(W/2)+(x/2))
+    input  wire        gwe,
+    input  wire [16:0] gwaddr,
+    input  wire [7:0]  gwd,
+
     input  wire rclk,
     input  wire rrst_n,
     input  wire        r_vs,         // 场同步 (pix, 下降沿换读页)
     input  wire [19:0] raddr,
-    output wire        rd            // 同步读 (晚 1 拍)
+    output wire        rd,           // 同步读 (晚 1 拍)
+    input  wire [16:0] graddr,
+    output wire [7:0]  grd
 );
 
-    localparam integer DEPTH = IMG_W * IMG_H;    // 307200
+    localparam integer DEPTH  = IMG_W * IMG_H;          // 307200
+    localparam integer GDEPTH = (IMG_W/2) * (IMG_H/2);  // 76800
 
-    // ---- 双页 BRAM ----
-    (* ram_style = "block" *) reg mem0 [0:DEPTH-1];
-    (* ram_style = "block" *) reg mem1 [0:DEPTH-1];
+    // ---- 双页 BRAM (edge + gray) ----
+    (* ram_style = "block" *) reg        mem0  [0:DEPTH-1];
+    (* ram_style = "block" *) reg        mem1  [0:DEPTH-1];
+    (* ram_style = "block" *) reg [7:0]  gmem0 [0:GDEPTH-1];
+    (* ram_style = "block" *) reg [7:0]  gmem1 [0:GDEPTH-1];
 
     // ---- 写页选择 (proc) ----
     reg wr_sel;
@@ -44,6 +54,10 @@ module framebuf_pp #(
         if (we) begin
             if (!wr_sel) mem0[waddr] <= wd;
             else         mem1[waddr] <= wd;
+        end
+        if (gwe) begin
+            if (!wr_sel) gmem0[gwaddr] <= gwd;
+            else         gmem1[gwaddr] <= gwd;
         end
     end
 
@@ -69,11 +83,15 @@ module framebuf_pp #(
 
     // 读: 两数组独立同步读 (标准 BRAM 推断形状), 输出外部 2:1
     reg q0, q1;
+    reg [7:0] gq0, gq1;
     always @(posedge rclk) begin
-        q0 <= mem0[raddr];
-        q1 <= mem1[raddr];
+        q0  <= mem0[raddr];
+        q1  <= mem1[raddr];
+        gq0 <= gmem0[graddr];
+        gq1 <= gmem1[graddr];
     end
 
-    assign rd = rd_sel ? q1 : q0;
+    assign rd  = rd_sel ? q1 : q0;
+    assign grd = rd_sel ? gq1 : gq0;
 
 endmodule
