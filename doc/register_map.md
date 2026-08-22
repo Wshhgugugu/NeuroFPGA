@@ -13,4 +13,9 @@
 | 0x020 | SNN_CTRL| WO | - | bit0: run_start 脉冲 (自清) |
 | 0x030+4n | SNN_CNT[n] | RO | 0 | 神经元 n 尖峰计数, n=0..15 |
 
+| 0x080 | HIST_ADDR | RW | 0 | 写: 直方图 bin 地址 [7:0]; 读: 该 bin 计数 [15:0] |
+| 0x084 | HIST_DONE | RO | 0 | bit0: 本帧直方图就绪 (冻结至下一帧 sof) |
+
+(注: 0x048~0x06C 属 SNN_CNT 区间, 新寄存器避开; 直方图帧间冻结, CPU 从容读取)
+
 非法地址: 读 0xDEAD_BEEF, 写丢弃并置 STATUS.addr_err。
