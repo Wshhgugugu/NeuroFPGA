@@ -38,7 +38,8 @@ module scharr_3x3 #(
         .w_valid(wv), .w_pix(wp), .w_row(wr), .w_col(wc), .w_eof(we)
     );
 
-    // 3*v = v + 2v ; 10*v = 8v + 2v  (全移位加)
+    // ---- 3 级流水线 (部分积 → 差值 → 求和+饱和) ----
+    // Stage 1: 6 个部分积 (mul3/mul10 各 1 级移位加)
     function signed [12:0] mul3(input [7:0] v);
         mul3 = $signed({5'b0, v}) + $signed({4'b0, v, 1'b0});
     endfunction
@@ -46,42 +47,67 @@ module scharr_3x3 #(
         mul10 = $signed({2'b0, v, 3'b000}) + $signed({4'b0, v, 1'b0});
     endfunction
 
-    function signed [12:0] sx; // -3a+3c -10d+10f -3g+3j
-        input [K-1:0][K-1:0][7:0] w;
-        begin
-            sx = mul3(w[0][2]) - mul3(w[0][0])
-               + mul10(w[1][2]) - mul10(w[1][0])
-               + mul3(w[2][2]) - mul3(w[2][0]);
+    reg signed [12:0] p_ul, p_ml, p_ll;      // Gx 列差 (左右)
+    reg signed [12:0] p_t, p_b;              // Gy 行和 (上/下)
+    reg        sv1_r;
+    reg [$clog2(IMG_H)-1:0] wr_r;
+    reg [$clog2(IMG_W)-1:0] wc_r;
+    reg        we_r;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            p_ul <= 0; p_ml <= 0; p_ll <= 0;
+            p_t <= 0; p_b <= 0;
+            sv1_r <= 0; wr_r <= 0; wc_r <= 0; we_r <= 0;
+        end else begin
+            // Gx 列差: -3a+3c, -10d+10f, -3g+3j
+            p_ul <= mul3(wp[0][2]) - mul3(wp[0][0]);
+            p_ml <= mul10(wp[1][2]) - mul10(wp[1][0]);
+            p_ll <= mul3(wp[2][2]) - mul3(wp[2][0]);
+            // Gy 行和: -(3a+10b+3c), +(3g+10h+3j)
+            p_t  <= mul3(wp[0][0]) + mul10(wp[0][1]) + mul3(wp[0][2]);
+            p_b  <= mul3(wp[2][0]) + mul10(wp[2][1]) + mul3(wp[2][2]);
+            sv1_r <= wv; wr_r <= wr; wc_r <= wc; we_r <= we;
         end
-    endfunction
+    end
 
-    function signed [12:0] sy; // -3a-10b-3c +3g+10h+3j
-        input [K-1:0][K-1:0][7:0] w;
-        begin
-            sy = - mul3(w[0][0]) - mul10(w[0][1]) - mul3(w[0][2])
-               + mul3(w[2][0]) + mul10(w[2][1]) + mul3(w[2][2]);
+    // Stage 2: 汇总 (Gx 3 项相加, Gy 下行-上行, 各 2 级加法树)
+    wire signed [14:0] gx_full = $signed(p_ul) + $signed(p_ml) + $signed(p_ll);
+    wire signed [14:0] gy_full = $signed(p_b) - $signed(p_t);
+
+    reg signed [14:0] gx_r, gy_r;
+    reg        sv2_r;
+    reg [$clog2(IMG_H)-1:0] wr2_r;
+    reg [$clog2(IMG_W)-1:0] wc2_r;
+    reg        we2_r;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            gx_r <= 0; gy_r <= 0;
+            sv2_r <= 0; wr2_r <= 0; wc2_r <= 0; we2_r <= 0;
+        end else begin
+            gx_r <= gx_full; gy_r <= gy_full;
+            sv2_r <= sv1_r; wr2_r <= wr_r; wc2_r <= wc_r; we2_r <= we_r;
         end
+    end
+
+    // Stage 3: 饱和 + 输出
+    function [11:0] sat12(input signed [14:0] v);
+        sat12 = (v > 15'sd2047)  ? 12'sd2047 :
+                (v < -15'sd2048) ? 12'h800 : v[11:0];
     endfunction
 
-    function [11:0] sat12(input signed [12:0] v);
-        sat12 = (v > 13'sd2047)  ? 12'sd2047 :
-                (v < -13'sd2048) ? 12'h800 : v[11:0];
-    endfunction
-
-    wire signed [12:0] gx_full = sx(wp);
-    wire signed [12:0] gy_full = sy(wp);
-    wire [11:0] gx_s = sat12(gx_full);
-    wire [11:0] gy_s = sat12(gy_full);
+    wire [11:0] gx_s = sat12(gx_r);
+    wire [11:0] gy_s = sat12(gy_r);
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             m_valid <= 0; m_data <= 0; m_sof <= 0; m_eol <= 0; m_eof <= 0;
         end else begin
-            m_valid <= wv;
+            m_valid <= sv2_r;
             m_data  <= {gy_s, gx_s};
-            m_sof   <= wv && (wr == 0) && (wc == 0);
-            m_eol   <= wv && (wc == IMG_W - 1);
-            m_eof   <= wv && we;
+            m_sof   <= sv2_r && (wr2_r == 0) && (wc2_r == 0);
+            m_eol   <= sv2_r && (wc2_r == IMG_W - 1);
+            m_eof   <= sv2_r && we2_r;
         end
     end
 

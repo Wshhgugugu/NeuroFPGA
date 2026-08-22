@@ -1,0 +1,2107 @@
+#-----------------------------------------------------------
+# Vivado v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Sat Aug 22 08:08:53 2026
+# Process ID         : 24104
+# Current directory  : E:/AMD_FPGA/Projects/Sim_GPU - Copy
+# Command line       : vivado.exe -mode batch -source scripts/build_sweet.tcl
+# Log file           : E:/AMD_FPGA/Projects/Sim_GPU - Copy/vivado.log
+# Journal file       : E:/AMD_FPGA/Projects/Sim_GPU - Copy\vivado.jou
+# Running On         : wshh
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13700H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 14
+# CPU Logical cores  : 20
+# Host memory        : 34070 MB
+# Swap memory        : 13028 MB
+# Total Virtual      : 47098 MB
+# Available Virtual  : 26445 MB
+#-----------------------------------------------------------
+source scripts/build_sweet.tcl
+# set proj_root "E:/AMD_FPGA/Projects/Sim_GPU - Copy"
+# cd $proj_root
+# set rtl_files [list \
+#   rtl/common/sync_2ff.v rtl/common/fifo_async.v rtl/common/line_buffer.v \
+#   rtl/common/window_kxk.v \
+#   rtl/sensor/sccb_master.v rtl/sensor/ov5640_ctrl.v \
+#   rtl/img_proc/gaussian_5x5.v rtl/img_proc/scharr_3x3.v \
+#   rtl/img_proc/gradient_mag_dir.v rtl/img_proc/median_3x3.v \
+#   rtl/img_proc/nms.v rtl/img_proc/double_threshold.v \
+#   rtl/img_proc/hysteresis.v rtl/img_proc/canny_top.v \
+#   rtl/snn/lif_neuron.v rtl/snn/spike_encoder.v \
+#   rtl/snn/synapse_array.v rtl/snn/snn_top.v \
+#   rtl/display/framebuf_pp.v rtl/display/vga_timing.v rtl/display/color_map.v rtl/display/hdmi_tx.v \
+#   rtl/interconnect/axi_crossbar_wrap.v rtl/interconnect/mode_switch.v \
+#   rtl/riscv/custom_alu.v rtl/riscv/instr_decoder_ext.v \
+#   rtl/riscv/vexriscv_wrapper.v rtl/cpu/mcu8.v rtl/cpu/axi_mcu_bridge.v \
+#   rtl/top/vision_top.v]
+# read_verilog -sv $rtl_files
+# read_xdc constraints/pins.xdc
+# read_xdc constraints/timing.xdc
+# read_xdc constraints/io_standard.xdc
+# synth_design -top vision_top -part xc7z020clg484-1 \
+#     -generic NCHAN=2 -generic SOFT_CTRL=2 \
+#     -generic CLK_MULT=21.0 -generic CLK_DIV0=6.0 -generic CLK_DIV1=14 \
+#     -include_dirs [list $proj_root/rtl/sensor $proj_root/mem]
+Command: synth_design -top vision_top -part xc7z020clg484-1 -generic NCHAN=2 -generic SOFT_CTRL=2 -generic CLK_MULT=21.0 -generic CLK_DIV0=6.0 -generic CLK_DIV1=14 -include_dirs {{E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/sensor} {E:/AMD_FPGA/Projects/Sim_GPU - Copy/mem}}
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Device 21-403] Loading part xc7z020clg484-1
+INFO: [Synth 8-7079] Multithreading enabled for synth_design using a maximum of 2 processes.
+INFO: [Synth 8-7078] Launching helper process for spawning children vivado processes
+INFO: [Synth 8-7075] Helper process launched with PID 31000
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:04 . Memory (MB): peak = 1299.336 ; gain = 540.086
+---------------------------------------------------------------------------------
+INFO: [Synth 8-6157] synthesizing module 'vision_top' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+	Parameter NCHAN bound to: 2 - type: integer 
+	Parameter CLK_MULT bound to: 2.100000e+01 - type: double 
+	Parameter CLK_DIV0 bound to: 6.000000e+00 - type: double 
+	Parameter CLK_DIV1 bound to: 14 - type: integer 
+	Parameter SOFT_CTRL bound to: 2 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'fifo_async' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:7]
+	Parameter DW bound to: 8 - type: integer 
+	Parameter AW bound to: 11 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'fifo_async' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:7]
+INFO: [Synth 8-6157] synthesizing module 'canny_top' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/canny_top.v:11]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+	Parameter MAX_PASS bound to: 64 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'gaussian_5x5' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/gaussian_5x5.v:8]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'window_kxk' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:21]
+	Parameter K bound to: 5 - type: integer 
+	Parameter DW bound to: 8 - type: integer 
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'window_kxk' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:21]
+INFO: [Synth 8-6155] done synthesizing module 'gaussian_5x5' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/gaussian_5x5.v:8]
+INFO: [Synth 8-6157] synthesizing module 'scharr_3x3' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/scharr_3x3.v:9]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'window_kxk__parameterized0' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:21]
+	Parameter K bound to: 3 - type: integer 
+	Parameter DW bound to: 8 - type: integer 
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'window_kxk__parameterized0' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:21]
+INFO: [Synth 8-6155] done synthesizing module 'scharr_3x3' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/scharr_3x3.v:9]
+INFO: [Synth 8-6157] synthesizing module 'gradient_mag_dir' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/gradient_mag_dir.v:10]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'gradient_mag_dir' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/gradient_mag_dir.v:10]
+INFO: [Synth 8-6157] synthesizing module 'median_3x3' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/median_3x3.v:10]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'window_kxk__parameterized1' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:21]
+	Parameter K bound to: 3 - type: integer 
+	Parameter DW bound to: 14 - type: integer 
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'window_kxk__parameterized1' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:21]
+INFO: [Synth 8-6155] done synthesizing module 'median_3x3' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/median_3x3.v:10]
+INFO: [Synth 8-6157] synthesizing module 'nms' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/nms.v:11]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'nms' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/nms.v:11]
+INFO: [Synth 8-6157] synthesizing module 'double_threshold' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/double_threshold.v:9]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'double_threshold' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/double_threshold.v:9]
+INFO: [Synth 8-6157] synthesizing module 'hysteresis' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/hysteresis.v:16]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+	Parameter MAX_PASS bound to: 64 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'window_kxk__parameterized2' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:21]
+	Parameter K bound to: 3 - type: integer 
+	Parameter DW bound to: 2 - type: integer 
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'window_kxk__parameterized2' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:21]
+INFO: [Synth 8-6155] done synthesizing module 'hysteresis' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/hysteresis.v:16]
+INFO: [Synth 8-6155] done synthesizing module 'canny_top' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/canny_top.v:11]
+INFO: [Synth 8-6157] synthesizing module 'mcu8' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/cpu/mcu8.v:15]
+	Parameter PROG bound to: mem/prog_adaptive.hex - type: string 
+INFO: [Synth 8-3876] $readmem data file 'mem/prog_adaptive.hex' is read successfully [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/cpu/mcu8.v:58]
+INFO: [Synth 8-226] default block is never used [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/cpu/mcu8.v:153]
+INFO: [Synth 8-6155] done synthesizing module 'mcu8' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/cpu/mcu8.v:15]
+INFO: [Synth 8-6157] synthesizing module 'axi_mcu_bridge' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/cpu/axi_mcu_bridge.v:15]
+WARNING: [Synth 8-6104] Input port 'm_rready' has an internal driver [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/cpu/axi_mcu_bridge.v:46]
+INFO: [Synth 8-6155] done synthesizing module 'axi_mcu_bridge' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/cpu/axi_mcu_bridge.v:15]
+WARNING: [Synth 8-4446] all outputs are unconnected for this instance and logic may be removed [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:65]
+INFO: [Synth 8-6157] synthesizing module 'sync_2ff' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/sync_2ff.v:6]
+INFO: [Synth 8-6155] done synthesizing module 'sync_2ff' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/sync_2ff.v:6]
+INFO: [Synth 8-6157] synthesizing module 'MMCME2_BASE' [E:/AMD_FPGA/2025.2/Vivado/scripts/rt/data/unisim_comp.v:95964]
+	Parameter BANDWIDTH bound to: OPTIMIZED - type: string 
+	Parameter CLKFBOUT_MULT_F bound to: 2.100000e+01 - type: double 
+	Parameter CLKFBOUT_PHASE bound to: 0.000000e+00 - type: double 
+	Parameter CLKIN1_PERIOD bound to: 2.000000e+01 - type: double 
+	Parameter CLKOUT0_DIVIDE_F bound to: 6.000000e+00 - type: double 
+	Parameter CLKOUT0_DUTY_CYCLE bound to: 5.000000e-01 - type: double 
+	Parameter CLKOUT0_PHASE bound to: 0.000000e+00 - type: double 
+	Parameter CLKOUT1_DIVIDE bound to: 14 - type: integer 
+	Parameter CLKOUT1_DUTY_CYCLE bound to: 5.000000e-01 - type: double 
+	Parameter CLKOUT1_PHASE bound to: 0.000000e+00 - type: double 
+	Parameter CLKOUT2_DIVIDE bound to: 1 - type: integer 
+	Parameter CLKOUT3_DIVIDE bound to: 1 - type: integer 
+	Parameter CLKOUT4_DIVIDE bound to: 1 - type: integer 
+	Parameter CLKOUT5_DIVIDE bound to: 1 - type: integer 
+	Parameter CLKOUT6_DIVIDE bound to: 1 - type: integer 
+	Parameter DIVCLK_DIVIDE bound to: 1 - type: integer 
+	Parameter REF_JITTER1 bound to: 1.000000e-02 - type: double 
+	Parameter STARTUP_WAIT bound to: FALSE - type: string 
+INFO: [Synth 8-6155] done synthesizing module 'MMCME2_BASE' (0#1) [E:/AMD_FPGA/2025.2/Vivado/scripts/rt/data/unisim_comp.v:95964]
+WARNING: [Synth 8-7071] port 'CLKFBOUTB' of module 'MMCME2_BASE' is unconnected for instance 'u_mmcm' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:101]
+WARNING: [Synth 8-7071] port 'CLKOUT0B' of module 'MMCME2_BASE' is unconnected for instance 'u_mmcm' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:101]
+WARNING: [Synth 8-7071] port 'CLKOUT1B' of module 'MMCME2_BASE' is unconnected for instance 'u_mmcm' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:101]
+WARNING: [Synth 8-7071] port 'CLKOUT2B' of module 'MMCME2_BASE' is unconnected for instance 'u_mmcm' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:101]
+WARNING: [Synth 8-7071] port 'CLKOUT3B' of module 'MMCME2_BASE' is unconnected for instance 'u_mmcm' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:101]
+WARNING: [Synth 8-7023] instance 'u_mmcm' of module 'MMCME2_BASE' has 18 connections declared, but only 13 given [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:101]
+INFO: [Synth 8-6157] synthesizing module 'ov5640_ctrl' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/sensor/ov5640_ctrl.v:13]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+	Parameter CFG_CLK_FREQ bound to: 50000000 - type: integer 
+	Parameter CHECK_CHIP_ID bound to: 1 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'sccb_master' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/sensor/sccb_master.v:11]
+	Parameter CLK_FREQ bound to: 50000000 - type: integer 
+	Parameter SCCB_FREQ bound to: 100000 - type: integer 
+INFO: [Synth 8-226] default block is never used [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/sensor/sccb_master.v:148]
+INFO: [Synth 8-6155] done synthesizing module 'sccb_master' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/sensor/sccb_master.v:11]
+INFO: [Synth 8-6155] done synthesizing module 'ov5640_ctrl' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/sensor/ov5640_ctrl.v:13]
+INFO: [Synth 8-6157] synthesizing module 'vexriscv_wrapper' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/riscv/vexriscv_wrapper.v:13]
+	Parameter SOFT_CTRL bound to: 2 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'vexriscv_wrapper' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/riscv/vexriscv_wrapper.v:13]
+INFO: [Synth 8-6157] synthesizing module 'axi_crossbar_wrap' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/interconnect/axi_crossbar_wrap.v:16]
+	Parameter NNEU bound to: 16 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'axi_crossbar_wrap' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/interconnect/axi_crossbar_wrap.v:16]
+INFO: [Synth 8-6157] synthesizing module 'snn_top' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/snn_top.v:12]
+	Parameter NIN bound to: 64 - type: integer 
+	Parameter NNEU bound to: 16 - type: integer 
+	Parameter TSTEPS bound to: 64 - type: integer 
+INFO: [Synth 8-6157] synthesizing module 'lif_neuron' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/lif_neuron.v:14]
+	Parameter LEAK_SHIFT bound to: 4 - type: integer 
+	Parameter REFRA bound to: 2 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'lif_neuron' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/lif_neuron.v:14]
+INFO: [Synth 8-6157] synthesizing module 'spike_encoder' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/spike_encoder.v:6]
+	Parameter NIN bound to: 64 - type: integer 
+	Parameter TSTEPS bound to: 64 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'spike_encoder' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/spike_encoder.v:6]
+INFO: [Synth 8-6157] synthesizing module 'synapse_array' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/synapse_array.v:7]
+	Parameter NNEU bound to: 16 - type: integer 
+	Parameter NIN bound to: 64 - type: integer 
+INFO: [Synth 8-3876] $readmem data file 'mem/weights_snn.hex' is read successfully [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/synapse_array.v:25]
+INFO: [Synth 8-6155] done synthesizing module 'synapse_array' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/synapse_array.v:7]
+INFO: [Synth 8-226] default block is never used [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/snn_top.v:131]
+INFO: [Synth 8-6155] done synthesizing module 'snn_top' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/snn/snn_top.v:12]
+INFO: [Synth 8-6157] synthesizing module 'vga_timing' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/display/vga_timing.v:8]
+INFO: [Synth 8-6155] done synthesizing module 'vga_timing' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/display/vga_timing.v:8]
+INFO: [Synth 8-6157] synthesizing module 'mode_switch' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/interconnect/mode_switch.v:7]
+INFO: [Synth 8-6155] done synthesizing module 'mode_switch' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/interconnect/mode_switch.v:7]
+INFO: [Synth 8-6157] synthesizing module 'framebuf_pp' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/display/framebuf_pp.v:12]
+	Parameter IMG_W bound to: 640 - type: integer 
+	Parameter IMG_H bound to: 480 - type: integer 
+INFO: [Synth 8-6155] done synthesizing module 'framebuf_pp' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/display/framebuf_pp.v:12]
+INFO: [Synth 8-6157] synthesizing module 'color_map' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/display/color_map.v:10]
+INFO: [Synth 8-6155] done synthesizing module 'color_map' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/display/color_map.v:10]
+INFO: [Synth 8-6157] synthesizing module 'hdmi_tx' [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/display/hdmi_tx.v:15]
+INFO: [Synth 8-6155] done synthesizing module 'hdmi_tx' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/display/hdmi_tx.v:15]
+INFO: [Synth 8-6155] done synthesizing module 'vision_top' (0#1) [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[0][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[1][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[2][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[3][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[0][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[1][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[2][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[3][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[4][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[0][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[1][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[0][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[1][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[2][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[0][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[1][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[0][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[1][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[2][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[0][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element src_reg_reg[1][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:116]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[0][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[1][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-6014] Unused sequential element sr_reg[2][0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/window_kxk.v:172]
+WARNING: [Synth 8-7137] Register m_edge_d_reg in module hysteresis has both Set and reset with same priority. This may cause simulation mismatches. Consider rewriting code  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/img_proc/hysteresis.v:240]
+WARNING: [Synth 8-6014] Unused sequential element g_soft.id_val_reg was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/riscv/vexriscv_wrapper.v:74]
+WARNING: [Synth 8-6014] Unused sequential element g_soft.seq_r_reg was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/riscv/vexriscv_wrapper.v:83]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[0] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[1] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[2] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[3] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[4] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[5] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[6] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[7] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[8] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[9] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[10] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[11] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[12] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[13] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[14] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[15] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[16] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[17] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[18] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[19] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[20] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[21] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[22] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[23] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[24] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[25] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[26] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[27] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[28] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[29] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[30] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[31] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[32] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[33] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[34] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[35] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[36] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[37] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[38] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[39] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[40] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[41] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[42] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[43] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[44] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[45] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[46] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[47] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[48] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[49] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[50] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[51] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[52] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[53] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[54] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[55] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[56] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[57] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[58] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[59] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[60] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[61] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[62] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-6014] Unused sequential element act_mem_reg[63] was removed.  [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:357]
+WARNING: [Synth 8-3848] Net mu_rready in module/entity vision_top does not have driver. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:254]
+WARNING: [Synth 8-3848] Net mu_rdata in module/entity vision_top does not have driver. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:256]
+WARNING: [Synth 8-3848] Net fw_rdata in module/entity vision_top does not have driver. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:248]
+WARNING: [Synth 8-7129] Port disp_y[5] in module color_map is either unconnected or has no load
+WARNING: [Synth 8-7129] Port disp_y[4] in module color_map is either unconnected or has no load
+WARNING: [Synth 8-7129] Port disp_y[3] in module color_map is either unconnected or has no load
+WARNING: [Synth 8-7129] Port disp_y[2] in module color_map is either unconnected or has no load
+WARNING: [Synth 8-7129] Port disp_y[1] in module color_map is either unconnected or has no load
+WARNING: [Synth 8-7129] Port disp_y[0] in module color_map is either unconnected or has no load
+WARNING: [Synth 8-7129] Port waddr[19] in module framebuf_pp is either unconnected or has no load
+WARNING: [Synth 8-7129] Port raddr[19] in module framebuf_pp is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_wdata[31] in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_wdata[30] in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_wdata[29] in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_wdata[28] in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_wdata[27] in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_wdata[26] in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_wdata[25] in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_wdata[24] in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_bready in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_rready in module axi_crossbar_wrap is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_awready in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_wready in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_arready in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[31] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[30] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[29] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[28] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[27] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[26] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[25] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[24] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[23] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[22] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[21] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[20] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[19] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[18] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[17] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[16] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[15] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[14] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[13] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[12] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[11] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[10] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[9] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[8] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[7] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[6] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[5] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[4] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[3] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[2] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[1] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rdata[0] in module vexriscv_wrapper is either unconnected or has no load
+WARNING: [Synth 8-7129] Port vsync in module ov5640_ctrl is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_axis_tready in module ov5640_ctrl is either unconnected or has no load
+WARNING: [Synth 8-7129] Port m_rready in module axi_mcu_bridge is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_eol in module hysteresis is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_eol in module nms is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_eof in module nms is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_eol in module median_3x3 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_eof in module median_3x3 is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_eol in module canny_top is either unconnected or has no load
+WARNING: [Synth 8-7129] Port s_eof in module canny_top is either unconnected or has no load
+WARNING: [Synth 8-7129] Port sim_s_sof[1] in module vision_top is either unconnected or has no load
+WARNING: [Synth 8-7129] Port sim_s_sof[0] in module vision_top is either unconnected or has no load
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 1481.395 ; gain = 722.145
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:07 ; elapsed = 00:00:06 . Memory (MB): peak = 1481.395 ; gain = 722.145
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:07 ; elapsed = 00:00:06 . Memory (MB): peak = 1481.395 ; gain = 722.145
+---------------------------------------------------------------------------------
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.145 . Memory (MB): peak = 1481.395 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 1 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/pins.xdc]
+Finished Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/pins.xdc]
+INFO: [Project 1-236] Implementation specific constraints were found while reading constraint file [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/pins.xdc]. These constraints will be ignored for synthesis but will be used in implementation. Impacted constraints are listed in the file [.Xil/vision_top_propImpl.xdc].
+Resolution: To avoid this warning, move constraints listed in [.Xil/vision_top_propImpl.xdc] to another XDC file and exclude this new file from synthesis with the used_in_synthesis property (File Properties dialog in GUI) and re-run elaboration/synthesis.
+Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc]
+INFO: [Timing 38-2] Deriving generated clocks [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:7]
+WARNING: [Constraints 18-401] set_false_path: 'u_rp/clk' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:14]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_rp/d_in' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:14]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_rp/q_out' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:14]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_rp/rst_n' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:14]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_rp/sync_ff_reg[0]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:14]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_rp/sync_ff_reg[1]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:14]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[0]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[0]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[10]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[10]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[11]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[11]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[1]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[1]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[2]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[2]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[3]/CLR' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[3]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[4]/CLR' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[4]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[5]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[5]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[6]/CLR' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[6]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[7]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[7]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[8]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[8]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[9]/CLR' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_hi_p1_reg[9]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:15]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[0]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[0]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[10]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[10]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[11]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[11]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[1]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[1]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[2]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[2]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[3]/CLR' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[3]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[4]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[4]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[5]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[5]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[6]/CLR' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[6]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[7]/CLR' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[7]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[8]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[8]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[9]/PRE' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'th_lo_p1_reg[9]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:16]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'snn_run_tgl_p1_reg/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:19]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'g_mcu_ctrl.u_mcu_bridge/st_p1_reg[0]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:22]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'g_mcu_ctrl.u_mcu_bridge/st_p1_reg[1]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:22]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'g_mcu_ctrl.u_mcu_bridge/st_p1_reg[2]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:22]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'g_mcu_ctrl.u_mcu_bridge/st_p1_reg[3]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:22]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'g_mcu_ctrl.u_mcu_bridge/st_p1_reg[4]/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:22]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'act_wr_p1_reg/Q' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:25]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[0]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[10]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[11]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[12]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[13]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[14]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[15]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[16]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[17]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[18]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[19]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[1]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[20]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[21]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[22]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[23]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[24]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[25]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[26]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[27]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[28]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[29]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[2]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[30]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[31]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[32]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[33]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[34]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[35]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[36]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[37]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[38]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[39]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[3]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[40]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[41]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[42]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[43]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+WARNING: [Constraints 18-401] set_false_path: 'u_snn/act_reg[44]_i' is not a valid endpoint. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Resolution: A valid end point is a data pin of a sequential cell or a primary output or inout port. Please validate that all the objects returned by your query belong to this list.
+INFO: [Common 17-14] Message 'Constraints 18-401' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:28]
+Finished Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc]
+Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/io_standard.xdc]
+Finished Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/io_standard.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.006 . Memory (MB): peak = 1560.629 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1 instances were transformed.
+  MMCME2_BASE => MMCME2_ADV: 1 instance 
+
+Constraint Validation Runtime : Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.104 . Memory (MB): peak = 1560.629 ; gain = 0.000
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:19 ; elapsed = 00:00:19 . Memory (MB): peak = 1560.629 ; gain = 801.379
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7z020clg484-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:19 ; elapsed = 00:00:19 . Memory (MB): peak = 1560.629 ; gain = 801.379
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:19 ; elapsed = 00:00:19 . Memory (MB): peak = 1560.629 ; gain = 801.379
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'phase_reg' in module 'hysteresis'
+INFO: [Synth 8-802] inferred FSM for state register 'state_reg' in module 'mcu8'
+INFO: [Synth 8-802] inferred FSM for state register 'afs_reg' in module 'axi_mcu_bridge'
+INFO: [Synth 8-802] inferred FSM for state register 'state_reg' in module 'sccb_master'
+INFO: [Synth 8-802] inferred FSM for state register 'cstate_reg' in module 'ov5640_ctrl'
+INFO: [Synth 8-802] inferred FSM for state register 'g_soft.state_reg' in module 'vexriscv_wrapper'
+INFO: [Synth 8-802] inferred FSM for state register 'state_reg' in module 'snn_top'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                 PH_IDLE |                            00001 |                              000
+                 PH_CAPT |                            10000 |                              001
+                 PH_PASS |                            01000 |                              010
+                PH_CHECK |                            00100 |                              011
+               PH_OUTPUT |                            00010 |                              100
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'phase_reg' using encoding 'one-hot' in module 'hysteresis'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_BOOT |                             0001 |                               00
+                 S_FETCH |                             0010 |                               01
+                  S_EXEC |                             0100 |                               10
+                  S_WAIT |                             1000 |                               11
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_reg' using encoding 'one-hot' in module 'mcu8'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  A_IDLE |                              000 |                              000
+                  A_WCMD |                              001 |                              001
+                 A_WWAIT |                              010 |                              010
+                  A_RCMD |                              011 |                              011
+                 A_RWAIT |                              100 |                              100
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'afs_reg' using encoding 'sequential' in module 'axi_mcu_bridge'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                              000 |                             0000
+                 S_START |                              001 |                             0001
+                   S_BIT |                              010 |                             0010
+                 S_RDBIT |                              011 |                             0100
+                  S_STOP |                              100 |                             0101
+                  S_DONE |                              101 |                             0110
+                S_RSTART |                              110 |                             0011
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_reg' using encoding 'sequential' in module 'sccb_master'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+               C_RST_LOW |                             0000 |                             0000
+              C_RST_WAIT |                             0001 |                             0001
+                   C_ID1 |                             0010 |                             0010
+                   C_ID2 |                             0011 |                             0011
+                 C_CHECK |                             0100 |                             0100
+                 C_ENTRY |                             0101 |                             0101
+                  C_DONE |                             0110 |                             1000
+                 C_DELAY |                             0111 |                             0111
+               C_WR_WAIT |                             1000 |                             0110
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'cstate_reg' using encoding 'sequential' in module 'ov5640_ctrl'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                   S_RST |                            00001 |                             0000
+                 S_WR0_A |                            00010 |                             0011
+                 S_WR0_W |                            00100 |                             0100
+               S_RD_ID_W |                            01000 |                             0010
+                  S_DONE |                            10000 |                             0110
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'g_soft.state_reg' using encoding 'one-hot' in module 'vexriscv_wrapper'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                  S_IDLE |                             0001 |                               00
+                   S_RUN |                             0010 |                               01
+                  S_TAIL |                             0100 |                               10
+                  S_DONE |                             1000 |                               11
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'state_reg' using encoding 'one-hot' in module 'snn_top'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 1560.629 ; gain = 801.379
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Adders : 
+	   2 Input   32 Bit       Adders := 24    
+	   3 Input   26 Bit       Adders := 16    
+	   2 Input   26 Bit       Adders := 17    
+	   2 Input   19 Bit       Adders := 6     
+	   4 Input   18 Bit       Adders := 2     
+	   2 Input   16 Bit       Adders := 8     
+	   3 Input   15 Bit       Adders := 2     
+	   3 Input   14 Bit       Adders := 2     
+	   3 Input   13 Bit       Adders := 14    
+	   5 Input   13 Bit       Adders := 2     
+	   2 Input   13 Bit       Adders := 12    
+	   4 Input   13 Bit       Adders := 4     
+	   2 Input   12 Bit       Adders := 11    
+	   2 Input   11 Bit       Adders := 42    
+	   2 Input   10 Bit       Adders := 26    
+	   2 Input    9 Bit       Adders := 11    
+	   3 Input    9 Bit       Adders := 1     
+	   2 Input    8 Bit       Adders := 38    
+	   3 Input    8 Bit       Adders := 1     
+	   2 Input    4 Bit       Adders := 3     
+	   8 Input    4 Bit       Adders := 3     
+	   9 Input    4 Bit       Adders := 3     
+	  12 Input    4 Bit       Adders := 3     
+	   2 Input    3 Bit       Adders := 10    
+	   2 Input    2 Bit       Adders := 9     
++---XORs : 
+	   2 Input     12 Bit         XORs := 4     
+	   2 Input      8 Bit         XORs := 1     
+	   2 Input      1 Bit         XORs := 21    
++---Registers : 
+	               64 Bit    Registers := 1     
+	               36 Bit    Registers := 8     
+	               32 Bit    Registers := 5     
+	               26 Bit    Registers := 39    
+	               24 Bit    Registers := 21    
+	               20 Bit    Registers := 2     
+	               19 Bit    Registers := 6     
+	               18 Bit    Registers := 2     
+	               16 Bit    Registers := 16    
+	               15 Bit    Registers := 4     
+	               14 Bit    Registers := 134   
+	               13 Bit    Registers := 21    
+	               12 Bit    Registers := 69    
+	               11 Bit    Registers := 22    
+	               10 Bit    Registers := 53    
+	                9 Bit    Registers := 32    
+	                8 Bit    Registers := 331   
+	                6 Bit    Registers := 3     
+	                5 Bit    Registers := 2     
+	                4 Bit    Registers := 7     
+	                3 Bit    Registers := 4     
+	                2 Bit    Registers := 81    
+	                1 Bit    Registers := 372   
++---RAMs : 
+	             300K Bit	(307200 X 1 bit)          RAMs := 6     
+	              16K Bit	(2048 X 8 bit)          RAMs := 2     
++---ROMs : 
+	                    ROMs := 2     
++---Muxes : 
+	   2 Input   45 Bit        Muxes := 1     
+	   4 Input   45 Bit        Muxes := 1     
+	   2 Input   32 Bit        Muxes := 2     
+	   2 Input   26 Bit        Muxes := 1     
+	   9 Input   26 Bit        Muxes := 1     
+	   5 Input   24 Bit        Muxes := 16    
+	   2 Input   24 Bit        Muxes := 34    
+	   4 Input   24 Bit        Muxes := 1     
+	   5 Input   19 Bit        Muxes := 6     
+	   2 Input   19 Bit        Muxes := 6     
+	   2 Input   16 Bit        Muxes := 3     
+	   4 Input   16 Bit        Muxes := 3     
+	   9 Input   16 Bit        Muxes := 1     
+	   2 Input   14 Bit        Muxes := 32    
+	   3 Input   14 Bit        Muxes := 16    
+	   2 Input   13 Bit        Muxes := 2     
+	   2 Input   12 Bit        Muxes := 86    
+	   4 Input   12 Bit        Muxes := 4     
+	   5 Input   12 Bit        Muxes := 3     
+	   2 Input   11 Bit        Muxes := 40    
+	   2 Input   10 Bit        Muxes := 48    
+	   4 Input   10 Bit        Muxes := 2     
+	   5 Input   10 Bit        Muxes := 1     
+	   4 Input    8 Bit        Muxes := 10    
+	   2 Input    8 Bit        Muxes := 102   
+	   3 Input    8 Bit        Muxes := 8     
+	   5 Input    8 Bit        Muxes := 2     
+	   7 Input    8 Bit        Muxes := 1     
+	   5 Input    5 Bit        Muxes := 3     
+	   2 Input    5 Bit        Muxes := 5     
+	   4 Input    4 Bit        Muxes := 2     
+	   2 Input    4 Bit        Muxes := 8     
+	   3 Input    4 Bit        Muxes := 1     
+	   7 Input    4 Bit        Muxes := 1     
+	   9 Input    4 Bit        Muxes := 1     
+	   5 Input    3 Bit        Muxes := 4     
+	   2 Input    3 Bit        Muxes := 6     
+	   7 Input    3 Bit        Muxes := 2     
+	   2 Input    2 Bit        Muxes := 24    
+	   3 Input    2 Bit        Muxes := 8     
+	   7 Input    2 Bit        Muxes := 1     
+	   2 Input    1 Bit        Muxes := 367   
+	   5 Input    1 Bit        Muxes := 39    
+	   4 Input    1 Bit        Muxes := 43    
+	  12 Input    1 Bit        Muxes := 4     
+	   3 Input    1 Bit        Muxes := 1     
+	   8 Input    1 Bit        Muxes := 18    
+	   7 Input    1 Bit        Muxes := 15    
+	   9 Input    1 Bit        Muxes := 12    
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 220 (col length:60)
+BRAMs: 280 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+DSP Report: Generating DSP mul_x2, operation Mode is: (A:0x5e4e)*B.
+DSP Report: operator mul_x2 is absorbed into DSP mul_x2.
+DSP Report: Generating DSP mul_y, operation Mode is: (A:0x2710)*B.
+DSP Report: operator mul_y is absorbed into DSP mul_y.
+DSP Report: Generating DSP mul_x, operation Mode is: (A:0x102e)*B.
+DSP Report: operator mul_x is absorbed into DSP mul_x.
+DSP Report: Generating DSP delay_cnt0, operation Mode is: (A:0xc350)*B.
+DSP Report: operator delay_cnt0 is absorbed into DSP delay_cnt0.
+DSP Report: Generating DSP fb_waddr_c, operation Mode is: C+A*(B:0x280).
+DSP Report: operator fb_waddr_c is absorbed into DSP fb_waddr_c.
+DSP Report: operator fb_waddr_c0 is absorbed into DSP fb_waddr_c.
+DSP Report: Generating DSP fb_raddr, operation Mode is: C+A*(B:0x280).
+DSP Report: operator fb_raddr is absorbed into DSP fb_raddr.
+DSP Report: operator fb_raddr0 is absorbed into DSP fb_raddr.
+WARNING: [Synth 8-7129] Port sim_s_sof[1] in module vision_top is either unconnected or has no load
+WARNING: [Synth 8-7129] Port sim_s_sof[0] in module vision_top is either unconnected or has no load
+WARNING: [Synth 8-3332] Sequential element (strong_mem_reg_mux_sel_a_pos_1) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (strong_mem_reg_mux_sel_a_pos_2) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (strong_mem_reg_mux_sel_a_pos_2__0) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (strong_mem_reg_mux_sel_a_pos_1__0) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (strong_mem_reg_mux_sel_a_pos_2__1) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (weak_mem_reg_mux_sel_a_pos_1) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (weak_mem_reg_mux_sel_a_pos_2) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (weak_mem_reg_mux_sel_a_pos_2__0) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (weak_mem_reg_mux_sel_a_pos_1__0) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (weak_mem_reg_mux_sel_a_pos_2__1) is unused and will be removed from module hysteresis.
+WARNING: [Synth 8-3332] Sequential element (FSM_onehot_g_soft.state_reg[4]) is unused and will be removed from module vexriscv_wrapper.
+WARNING: [Synth 8-3332] Sequential element (FSM_onehot_g_soft.state_reg[3]) is unused and will be removed from module vexriscv_wrapper.
+WARNING: [Synth 8-3332] Sequential element (FSM_onehot_g_soft.state_reg[2]) is unused and will be removed from module vexriscv_wrapper.
+WARNING: [Synth 8-3332] Sequential element (FSM_onehot_g_soft.state_reg[1]) is unused and will be removed from module vexriscv_wrapper.
+WARNING: [Synth 8-3332] Sequential element (FSM_onehot_g_soft.state_reg[0]) is unused and will be removed from module vexriscv_wrapper.
+WARNING: [Synth 8-3332] Sequential element (mem0_reg_mux_sel_a_pos_1) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem0_reg_mux_sel_a_pos_2) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem0_reg_mux_sel_a_pos_2__0) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem0_reg_mux_sel_a_pos_1__0) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem0_reg_mux_sel_a_pos_2__1) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem1_reg_mux_sel_a_pos_1) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem1_reg_mux_sel_a_pos_2) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem1_reg_mux_sel_a_pos_2__0) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem1_reg_mux_sel_a_pos_1__0) is unused and will be removed from module framebuf_pp.
+WARNING: [Synth 8-3332] Sequential element (mem1_reg_mux_sel_a_pos_2__1) is unused and will be removed from module framebuf_pp.
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:45 ; elapsed = 00:00:46 . Memory (MB): peak = 1656.824 ; gain = 897.574
+---------------------------------------------------------------------------------
+ Sort Area is canny_top mul_x2_4 : 0 0 : 836 836 : Used 2 time 0
+ Sort Area is canny_top mul_y_0 : 0 0 : 643 643 : Used 2 time 0
+ Sort Area is canny_top mul_x_2 : 0 0 : 366 366 : Used 2 time 0
+ Sort Area is vision_top__GCB1 delay_cnt0_6 : 0 0 : 303 303 : Used 1 time 0
+ Sort Area is vision_top__GCB1 fb_raddr_a : 0 0 : 195 195 : Used 1 time 0
+ Sort Area is vision_top__GCB1 fb_waddr_c_8 : 0 0 : 118 118 : Used 1 time 0
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+ROM: Preliminary Mapping Report
++------------+----------------+---------------+----------------+
+|Module Name | RTL Object     | Depth x Width | Implemented As | 
++------------+----------------+---------------+----------------+
+|ov5640_ctrl | ov5640_cfg_rom | 256x23        | LUT            | 
+|ov5640_ctrl | ov5640_cfg_rom | 256x23        | LUT            | 
++------------+----------------+---------------+----------------+
+
+
+Block RAM: Preliminary Mapping Report (see note below)
++------------------+----------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name       | RTL Object     | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++------------------+----------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|canny_top:/u_hyst | strong_mem_reg | 300 K x 1(READ_FIRST)  | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|canny_top:/u_hyst | weak_mem_reg   | 300 K x 1(READ_FIRST)  | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|canny_top:/u_hyst | strong_mem_reg | 300 K x 1(READ_FIRST)  | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|canny_top:/u_hyst | weak_mem_reg   | 300 K x 1(READ_FIRST)  | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|i_0/u_fb          | mem0_reg       | 300 K x 1(NO_CHANGE)   | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|i_0/u_fb          | mem1_reg       | 300 K x 1(NO_CHANGE)   | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
++------------------+----------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+Note: The table above is a preliminary report that shows the Block RAMs at the current stage of the synthesis flow. Some Block RAMs may be reimplemented as non Block RAM primitives later in the synthesis flow. Multiple instantiated Block RAMs are reported only once. 
+
+Distributed RAM: Preliminary Mapping Report (see note below)
++----------------------+---------------------------+----------------+----------------------+--------------------------------+
+|Module Name           | RTL Object                | Inference      | Size (Depth x Width) | Primitives                     | 
++----------------------+---------------------------+----------------+----------------------+--------------------------------+
+|canny_top:/u_gauss    | u_win/g_bank[3].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[2].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_scharr   | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_scharr   | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_med      | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_med      | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_nms      | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_nms      | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_hyst     | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 2              | RAM128X1S x 2 RAM256X1S x 4    | 
+|canny_top:/u_hyst     | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 2              | RAM128X1S x 2 RAM256X1S x 4    | 
+|canny_top:/u_gauss    | u_win/g_bank[3].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[2].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_scharr   | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_scharr   | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_med      | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_med      | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_nms      | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_nms      | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_hyst     | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 2              | RAM128X1S x 2 RAM256X1S x 4    | 
+|canny_top:/u_hyst     | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 2              | RAM128X1S x 2 RAM256X1S x 4    | 
+|i_0/\g_chan[1].u_cdc  | mem_reg                   | Implied        | 2 K x 8              | RAM64M x 96                    | 
+|i_0/\g_chan[0].u_cdc  | mem_reg                   | Implied        | 2 K x 8              | RAM64M x 96                    | 
++----------------------+---------------------------+----------------+----------------------+--------------------------------+
+
+Note: The table above is a preliminary report that shows the Distributed RAMs at the current stage of the synthesis flow. Some Distributed RAMs may be reimplemented as non Distributed RAM primitives later in the synthesis flow. Multiple instantiated RAMs are reported only once.
+
+DSP: Preliminary Mapping Report (see note below. The ' indicates corresponding REG is set)
++-----------------+---------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping   | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+---------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|gradient_mag_dir | (A:0x5e4e)*B  | 12     | 15     | -      | -      | 27     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|gradient_mag_dir | (A:0x2710)*B  | 12     | 14     | -      | -      | 26     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|gradient_mag_dir | (A:0x102e)*B  | 12     | 13     | -      | -      | 25     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|ov5640_ctrl      | (A:0xc350)*B  | 8      | 16     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 0    | 0    | 
+|vision_top       | C+A*(B:0x280) | 10     | 10     | 10     | -      | 20     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|vision_top       | C+A*(B:0x280) | 13     | 10     | 13     | -      | 20     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
++-----------------+---------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+Note: The table above is a preliminary report that shows the DSPs inferred at the current stage of the synthesis flow. Some DSP may be reimplemented as non DSP primitives later in the synthesis flow. Multiple instantiated DSPs are reported only once.
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:51 ; elapsed = 00:00:52 . Memory (MB): peak = 1783.359 ; gain = 1024.109
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:53 ; elapsed = 00:00:54 . Memory (MB): peak = 1802.336 ; gain = 1043.086
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Block RAM: Final Mapping Report
++------------------+----------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|Module Name       | RTL Object     | PORT A (Depth x Width) | W | R | PORT B (Depth x Width) | W | R | Ports driving FF | RAMB18 | RAMB36 | 
++------------------+----------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+|canny_top:/u_hyst | strong_mem_reg | 300 K x 1(READ_FIRST)  | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|canny_top:/u_hyst | weak_mem_reg   | 300 K x 1(READ_FIRST)  | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|canny_top:/u_hyst | strong_mem_reg | 300 K x 1(READ_FIRST)  | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|canny_top:/u_hyst | weak_mem_reg   | 300 K x 1(READ_FIRST)  | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|i_0/u_fb          | mem0_reg       | 300 K x 1(NO_CHANGE)   | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
+|i_0/u_fb          | mem1_reg       | 300 K x 1(NO_CHANGE)   | W |   | 300 K x 1(WRITE_FIRST) |   | R | Port A and B     | 0      | 10     | 
++------------------+----------------+------------------------+---+---+------------------------+---+---+------------------+--------+--------+
+
+
+Distributed RAM: Final Mapping Report
++----------------------+---------------------------+----------------+----------------------+--------------------------------+
+|Module Name           | RTL Object                | Inference      | Size (Depth x Width) | Primitives                     | 
++----------------------+---------------------------+----------------+----------------------+--------------------------------+
+|canny_top:/u_gauss    | u_win/g_bank[3].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[2].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_scharr   | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_scharr   | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_med      | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_med      | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_nms      | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_nms      | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_hyst     | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 2              | RAM128X1S x 2 RAM256X1S x 4    | 
+|canny_top:/u_hyst     | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 2              | RAM128X1S x 2 RAM256X1S x 4    | 
+|canny_top:/u_gauss    | u_win/g_bank[3].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[2].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_gauss    | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_scharr   | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_scharr   | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 8              | RAM128X1S x 8 RAM256X1S x 16   | 
+|canny_top:/u_med      | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_med      | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_nms      | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_nms      | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 14             | RAM128X1S x 14 RAM256X1S x 28  | 
+|canny_top:/u_hyst     | u_win/g_bank[1].mem_b_reg | User Attribute | 1 K x 2              | RAM128X1S x 2 RAM256X1S x 4    | 
+|canny_top:/u_hyst     | u_win/g_bank[0].mem_b_reg | User Attribute | 1 K x 2              | RAM128X1S x 2 RAM256X1S x 4    | 
+|i_0/\g_chan[1].u_cdc  | mem_reg                   | Implied        | 2 K x 8              | RAM64M x 96                    | 
+|i_0/\g_chan[0].u_cdc  | mem_reg                   | Implied        | 2 K x 8              | RAM64M x 96                    | 
++----------------------+---------------------------+----------------+----------------------+--------------------------------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+Found timing loop:
+     0: i_6530/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6530/I1 (LUT2)
+     2: i_6521/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     3: i_6521/I1 (LUT2)
+     4: i_6528/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     5: i_6528/S[0] (CARRY4)
+     6: i_6503/O (LUT4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:71]
+     7: i_6503/I3 (LUT4)
+     8: i_6504/O (LUT5)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:71]
+     9: i_6504/I3 (LUT5)
+    10: i_6525/O[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+    11: i_6525/S[0] (CARRY4)
+    12: i_6530/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Inferred a: "set_disable_timing -from I1 -to O i_6530"
+Found timing loop:
+     0: i_6530/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6530/O (LUT2)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_6530/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6530/O (LUT2)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_6530/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6530/O (LUT2)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_6525/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6525/S[0] (CARRY4)
+     2: i_6530/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     3: i_6530/O (LUT2)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Inferred a: "set_disable_timing -from S[0] -to CO[3] i_6525"
+Found timing loop:
+     0: i_6525/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6525/CO[3] (CARRY4)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_6525/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6525/CO[3] (CARRY4)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_6525/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6525/CO[3] (CARRY4)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_6525/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_6525/CO[3] (CARRY4)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_7451/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7451/I1 (LUT2)
+     2: i_7442/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     3: i_7442/I1 (LUT2)
+     4: i_7449/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     5: i_7449/S[0] (CARRY4)
+     6: i_7424/O (LUT4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:71]
+     7: i_7424/I3 (LUT4)
+     8: i_7425/O (LUT5)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:71]
+     9: i_7425/I3 (LUT5)
+    10: i_7446/O[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+    11: i_7446/S[0] (CARRY4)
+    12: i_7451/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Inferred a: "set_disable_timing -from I1 -to O i_7451"
+Found timing loop:
+     0: i_7451/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7451/O (LUT2)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_7451/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7451/O (LUT2)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_7451/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7451/O (LUT2)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_7446/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7446/S[0] (CARRY4)
+     2: i_7451/O (LUT2)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     3: i_7451/O (LUT2)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Inferred a: "set_disable_timing -from S[0] -to CO[3] i_7446"
+Found timing loop:
+     0: i_7446/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7446/CO[3] (CARRY4)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_7446/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7446/CO[3] (CARRY4)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_7446/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7446/CO[3] (CARRY4)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+Found timing loop:
+     0: i_7446/CO[3] (CARRY4)
+      [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/common/fifo_async.v:34]
+     1: i_7446/CO[3] (CARRY4)
+CRITICAL WARNING: [Synth 8-295] found timing loop. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/rtl/top/vision_top.v:14]
+INFO: [Synth 8-7052] The timing for the instance u_snn/u_syn/w_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/strong_mem_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/strong_mem_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/strong_mem_reg_5 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/strong_mem_reg_7 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/strong_mem_reg_9 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/weak_mem_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/weak_mem_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/weak_mem_reg_5 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/weak_mem_reg_7 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[0].u_canny/u_hyst/weak_mem_reg_9 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/strong_mem_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/strong_mem_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/strong_mem_reg_5 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/strong_mem_reg_7 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/strong_mem_reg_9 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/weak_mem_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/weak_mem_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/weak_mem_reg_5 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/weak_mem_reg_7 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_chan[1].u_canny/u_hyst/weak_mem_reg_9 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance g_mcu_ctrl.u_mcu8/rom_q_reg (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem0_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem0_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem0_reg_5 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem0_reg_7 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem0_reg_9 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem1_reg_1 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem1_reg_3 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem1_reg_5 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem1_reg_7 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+INFO: [Synth 8-7052] The timing for the instance u_fb/mem1_reg_9 (implemented as a Block RAM) might be sub-optimal as no optional output register could be merged into the ram block. Providing additional output register may help in improving timing.
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:58 ; elapsed = 00:00:59 . Memory (MB): peak = 1858.074 ; gain = 1098.824
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+INFO: [Synth 8-4163] Replicating register \u_cam/d_i_reg[0]  to handle IOB=TRUE attribute
+INFO: [Synth 8-4163] Replicating register \u_cam/d_i_reg[1]  to handle IOB=TRUE attribute
+INFO: [Synth 8-4163] Replicating register \u_cam/d_i_reg[2]  to handle IOB=TRUE attribute
+INFO: [Synth 8-4163] Replicating register \u_cam/d_i_reg[3]  to handle IOB=TRUE attribute
+INFO: [Synth 8-4163] Replicating register \u_cam/d_i_reg[4]  to handle IOB=TRUE attribute
+INFO: [Synth 8-4163] Replicating register \u_cam/d_i_reg[5]  to handle IOB=TRUE attribute
+INFO: [Synth 8-4163] Replicating register \u_cam/d_i_reg[6]  to handle IOB=TRUE attribute
+INFO: [Synth 8-4163] Replicating register \u_cam/d_i_reg[7]  to handle IOB=TRUE attribute
+INFO: [Synth 8-4163] Replicating register \u_cam/hs_i_reg  to handle IOB=TRUE attribute
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:01:01 ; elapsed = 00:01:02 . Memory (MB): peak = 2056.094 ; gain = 1296.844
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:01:01 ; elapsed = 00:01:02 . Memory (MB): peak = 2056.094 ; gain = 1296.844
+---------------------------------------------------------------------------------
+WARNING: [Synth 8-326] inferred exception to break timing loop: 'set_false_path -through \wgray_reg[3]_i_2 /O[3]'
+WARNING: [Synth 8-326] inferred exception to break timing loop: 'set_false_path -through \wgray_reg[3]_i_2 /O[2]'
+WARNING: [Synth 8-326] inferred exception to break timing loop: 'set_false_path -through \wgray_reg[3]_i_2 /O[1]'
+WARNING: [Synth 8-326] inferred exception to break timing loop: 'set_false_path -through \wgray_reg[3]_i_2 /O[0]'
+WARNING: [Synth 8-326] inferred exception to break timing loop: 'set_false_path -through \wgray_reg[3]_i_2__0 /O[3]'
+WARNING: [Synth 8-326] inferred exception to break timing loop: 'set_false_path -through \wgray_reg[3]_i_2__0 /O[2]'
+WARNING: [Synth 8-326] inferred exception to break timing loop: 'set_false_path -through \wgray_reg[3]_i_2__0 /O[1]'
+WARNING: [Synth 8-326] inferred exception to break timing loop: 'set_false_path -through \wgray_reg[3]_i_2__0 /O[0]'
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2056.094 ; gain = 1296.844
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2056.094 ; gain = 1296.844
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2066.324 ; gain = 1307.074
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2066.324 ; gain = 1307.074
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+
+Static Shift Register Report:
++------------+--------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+|Module Name | RTL Name                             | Length | Width | Reset Signal | Pull out first Reg | Pull out last Reg | SRL16E | SRLC32E | 
++------------+--------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+|vision_top  | g_chan[0].u_canny/u_gauss/sv2_r_reg  | 4      | 6     | YES          | NO                 | YES               | 6      | 0       | 
+|vision_top  | g_chan[0].u_canny/u_med/sv5_r_reg    | 7      | 6     | YES          | NO                 | YES               | 6      | 0       | 
+|vision_top  | g_chan[0].u_canny/u_med/wr5_r_reg[8] | 6      | 38    | YES          | NO                 | YES               | 38     | 0       | 
++------------+--------------------------------------+--------+-------+--------------+--------------------+-------------------+--------+---------+
+
+---------------------------------------------------------------------------------
+Finished ROM, RAM, DSP, Shift Register and Retiming Reporting
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+DSP Final Report (the ' indicates corresponding REG is set)
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|Module Name      | DSP Mapping | A Size | B Size | C Size | D Size | P Size | AREG | BREG | CREG | DREG | ADREG | MREG | PREG | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+|vision_top       | (C+A*B)'    | 10     | 10     | 10     | -      | 20     | 0    | 0    | 0    | -    | -     | 0    | 1    | 
+|vision_top       | C+A*B       | 13     | 10     | 13     | -      | 20     | 0    | 0    | 0    | -    | -     | 0    | 0    | 
+|gradient_mag_dir | (A*B)'      | 12     | 15     | -      | -      | 27     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|gradient_mag_dir | (A*B)'      | 12     | 14     | -      | -      | 26     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|gradient_mag_dir | (A*B)'      | 12     | 13     | -      | -      | 25     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|gradient_mag_dir | (A*B)'      | 12     | 15     | -      | -      | 27     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|gradient_mag_dir | (A*B)'      | 12     | 14     | -      | -      | 26     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|gradient_mag_dir | (A*B)'      | 12     | 13     | -      | -      | 25     | 0    | 0    | -    | -    | -     | 0    | 1    | 
+|ov5640_ctrl      | A*B         | 8      | 16     | -      | -      | 24     | 0    | 0    | -    | -    | -     | 0    | 0    | 
++-----------------+-------------+--------+--------+--------+--------+--------+------+------+------+------+-------+------+------+
+
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+------------+------+
+|      |Cell        |Count |
++------+------------+------+
+|1     |BUFG        |     4|
+|2     |CARRY4      |  1064|
+|3     |DSP48E1     |     9|
+|7     |LUT1        |   229|
+|8     |LUT2        |  3180|
+|9     |LUT3        |  1826|
+|10    |LUT4        |  2653|
+|11    |LUT5        |  1234|
+|12    |LUT6        |  2101|
+|13    |MMCME2_BASE |     1|
+|14    |MUXF7       |   104|
+|15    |MUXF8       |    12|
+|16    |RAM128X1S   |   216|
+|17    |RAM256X1S   |   432|
+|18    |RAM64M      |   192|
+|19    |RAMB18E1    |     2|
+|21    |RAMB36E1    |    60|
+|25    |SRL16E      |    50|
+|26    |FDCE        |  8678|
+|27    |FDPE        |    71|
+|28    |FDRE        |    71|
+|29    |IBUF        |    30|
+|30    |IOBUF       |     1|
+|31    |OBUF        |    54|
++------+------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2066.324 ; gain = 1307.074
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 18 critical warnings and 35 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:49 ; elapsed = 00:00:57 . Memory (MB): peak = 2066.324 ; gain = 1227.840
+Synthesis Optimization Complete : Time (s): cpu = 00:01:03 ; elapsed = 00:01:04 . Memory (MB): peak = 2066.324 ; gain = 1307.074
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.174 . Memory (MB): peak = 2071.488 ; gain = 0.000
+INFO: [Netlist 29-17] Analyzing 2093 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/pins.xdc]
+Finished Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/pins.xdc]
+Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc]
+INFO: [Timing 38-35] Done setting XDC timing constraints. [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:7]
+INFO: [Timing 38-2] Deriving generated clocks [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc:7]
+Finished Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/timing.xdc]
+Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/io_standard.xdc]
+Finished Parsing XDC File [E:/AMD_FPGA/Projects/Sim_GPU - Copy/constraints/io_standard.xdc]
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 842 instances were transformed.
+  IOBUF => IOBUF (IBUF, OBUFT): 1 instance 
+  MMCME2_BASE => MMCME2_ADV: 1 instance 
+  RAM128X1S => RAM128X1S (MUXF7, RAMS64E(x2)): 216 instances
+  RAM256X1S => RAM256X1S (MUXF7(x2), MUXF8, RAMS64E(x4)): 432 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 192 instances
+
+Synth Design complete | Checksum: dedabf30
+INFO: [Common 17-83] Releasing license: Synthesis
+143 Infos, 302 Warnings, 18 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:01:22 ; elapsed = 00:01:25 . Memory (MB): peak = 2584.387 ; gain = 2059.613
+# report_utilization -file out/util_sweet.rpt
+# opt_design -directive Explore
+Command: opt_design -directive Explore
+INFO: [Vivado_Tcl 4-136] Directive used for opt_design is: Explore
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z020'
+Running DRC as a precondition to command opt_design
+
+Starting DRC Task
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Project 1-461] DRC finished with 0 Errors
+INFO: [Project 1-462] Please refer to the DRC report (report_drc) for more information.
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.579 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Starting Logic Optimization Task
+
+Phase 1 Initialization
+
+Phase 1.1 Core Generation And Design Setup
+Phase 1.1 Core Generation And Design Setup | Checksum: 1819a88cb
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.013 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 1.2 Setup Constraints And Sort Netlist
+Phase 1.2 Setup Constraints And Sort Netlist | Checksum: 1819a88cb
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.027 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 1 Initialization | Checksum: 1819a88cb
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.030 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2 Timer Update And Timing Data Collection
+
+Phase 2.1 Detect if minReqCache needed
+Phase 2.1 Detect if minReqCache needed | Checksum: 1819a88cb
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.047 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2.2 Timer Update
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+Phase 2.2 Timer Update | Checksum: 1819a88cb
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.944 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2.3 Timing Data Collection
+Phase 2.3 Timing Data Collection | Checksum: 1819a88cb
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.957 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 2 Timer Update And Timing Data Collection | Checksum: 1819a88cb
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.960 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3 Retarget
+INFO: [Opt 31-1851] Number of loadless carry chains removed were: 0
+INFO: [Opt 31-1834] Total Chains To Be Transformed Were: 0 AND Number of Transformed insts Created are: 0
+INFO: [Opt 31-1566] Pulled 3 inverters resulting in an inversion of 20 pins
+INFO: [Opt 31-138] Pushed 1 inverter(s) to 1 load pin(s).
+INFO: [Opt 31-49] Retargeted 0 cell(s).
+Phase 3 Retarget | Checksum: 1d88b230e
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:01 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Retarget | Checksum: 1d88b230e
+INFO: [Opt 31-389] Phase Retarget created 9 cells and removed 5 cells
+INFO: [Opt 31-1021] In phase Retarget, 3 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 4 Constant propagation
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Phase 4 Constant propagation | Checksum: 18532b0bf
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Constant propagation | Checksum: 18532b0bf
+INFO: [Opt 31-389] Phase Constant propagation created 0 cells and removed 0 cells
+INFO: [Opt 31-1021] In phase Constant propagation, 1 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 5 Sweep
+INFO: [Constraints 18-11670] Building netlist checker database with flags, 0x8
+Done building netlist checker database: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.006 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 5 Sweep | Checksum: 1fff87308
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:01 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Sweep | Checksum: 1fff87308
+INFO: [Opt 31-389] Phase Sweep created 0 cells and removed 27 cells
+INFO: [Opt 31-1021] In phase Sweep, 1 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 6 BUFG optimization
+Phase 6 BUFG optimization | Checksum: 1fff87308
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+BUFG optimization | Checksum: 1fff87308
+INFO: [Opt 31-662] Phase BUFG optimization created 0 cells of which 0 are BUFGs and removed 0 cells.
+
+Phase 7 Shift Register Optimization
+INFO: [Opt 31-1064] SRL Remap converted 0 SRLs to 0 registers and converted 0 registers of register chains to 0 SRLs
+Phase 7 Shift Register Optimization | Checksum: 1fff87308
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Shift Register Optimization | Checksum: 1fff87308
+INFO: [Opt 31-389] Phase Shift Register Optimization created 0 cells and removed 0 cells
+INFO: [Opt 31-1555] control_set_opt supports Versal devices only, and device 7z020 is unsupported
+
+Phase 8 Post Processing Netlist
+Phase 8 Post Processing Netlist | Checksum: 1fff87308
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Post Processing Netlist | Checksum: 1fff87308
+INFO: [Opt 31-389] Phase Post Processing Netlist created 0 cells and removed 0 cells
+INFO: [Opt 31-1021] In phase Post Processing Netlist, 1 netlist objects are constrained preventing optimization. Please run opt_design with -debug_log to get more detail. 
+
+Phase 9 Finalization
+
+Phase 9.1 Finalizing Design Cores and Updating Shapes
+Phase 9.1 Finalizing Design Cores and Updating Shapes | Checksum: 10a2ac753
+
+Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 9.2 Verifying Netlist Connectivity
+
+Starting Connectivity Check Task
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.026 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 9.2 Verifying Netlist Connectivity | Checksum: 10a2ac753
+
+Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 9 Finalization | Checksum: 10a2ac753
+
+Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Opt_design Change Summary
+=========================
+
+
+-------------------------------------------------------------------------------------------------------------------------
+|  Phase                        |  #Cells created  |  #Cells Removed  |  #Constrained objects preventing optimizations  |
+-------------------------------------------------------------------------------------------------------------------------
+|  Retarget                     |               9  |               5  |                                              3  |
+|  Constant propagation         |               0  |               0  |                                              1  |
+|  Sweep                        |               0  |              27  |                                              1  |
+|  BUFG optimization            |               0  |               0  |                                              0  |
+|  Shift Register Optimization  |               0  |               0  |                                              0  |
+|  Post Processing Netlist      |               0  |               0  |                                              1  |
+-------------------------------------------------------------------------------------------------------------------------
+
+
+Ending Logic Optimization Task | Checksum: 10a2ac753
+
+Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Common 17-83] Releasing license: Implementation
+26 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+opt_design completed successfully
+opt_design: Time (s): cpu = 00:00:06 ; elapsed = 00:00:05 . Memory (MB): peak = 2584.387 ; gain = 0.000
+# place_design -directive Explore
+Command: place_design -directive Explore
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-83] Releasing license: Implementation
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Vivado_Tcl 4-2302] The placer was invoked with the 'Explore' directive.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors, 42 Warnings
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+INFO: [Place 30-611] Multithreading enabled for place_design using a maximum of 2 CPUs
+
+Starting Placer Task
+
+Phase 1 Placer Initialization
+
+Phase 1.1 Placer Initialization Netlist Sorting
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 1.1 Placer Initialization Netlist Sorting | Checksum: 4b804628
+
+Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.011 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device | Checksum: ebc4b44b
+
+Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 1.3 Build Placer Netlist Model
+Phase 1.3 Build Placer Netlist Model | Checksum: 14a42414e
+
+Time (s): cpu = 00:00:09 ; elapsed = 00:00:06 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 1.4 Constrain Clocks/Macros
+Phase 1.4 Constrain Clocks/Macros | Checksum: 14a42414e
+
+Time (s): cpu = 00:00:09 ; elapsed = 00:00:06 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 1 Placer Initialization | Checksum: 14a42414e
+
+Time (s): cpu = 00:00:09 ; elapsed = 00:00:06 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2 Global Placement
+
+Phase 2.1 Floorplanning
+Phase 2.1 Floorplanning | Checksum: 1b64a267d
+
+Time (s): cpu = 00:00:12 ; elapsed = 00:00:08 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2.2 Update Timing before SLR Path Opt
+Phase 2.2 Update Timing before SLR Path Opt | Checksum: 1e0afae6c
+
+Time (s): cpu = 00:00:14 ; elapsed = 00:00:09 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2.3 Post-Processing in Floorplanning
+Phase 2.3 Post-Processing in Floorplanning | Checksum: 183a116e4
+
+Time (s): cpu = 00:00:15 ; elapsed = 00:00:09 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2.4 Global Place Phase1
+Phase 2.4 Global Place Phase1 | Checksum: 17ab4dc15
+
+Time (s): cpu = 00:00:31 ; elapsed = 00:00:19 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2.5 Global Place Phase2
+
+Phase 2.5.1 UpdateTiming Before Physical Synthesis
+Phase 2.5.1 UpdateTiming Before Physical Synthesis | Checksum: 174ffe56b
+
+Time (s): cpu = 00:00:34 ; elapsed = 00:00:21 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2.5.2 Physical Synthesis In Placer
+INFO: [Physopt 32-1035] Found 15 LUTNM shape to break, 368 LUT instances to create LUTNM shape
+INFO: [Physopt 32-1044] Break lutnm for timing: one critical 14, two critical 1, total 15, new lutff created 2
+INFO: [Physopt 32-1138] End 1 Pass. Optimized 188 nets or LUTs. Breaked 15 LUTs, combined 173 existing LUTs and moved 0 existing LUT
+INFO: [Physopt 32-65] No nets found for high-fanout optimization.
+INFO: [Physopt 32-232] Optimized 0 net. Created 0 new instance.
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-456] No candidate cells for DSP register optimization found in the design.
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-1123] No candidate cells found for Shift Register to Pipeline optimization
+INFO: [Physopt 32-775] End 2 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-1401] No candidate cells found for Shift Register optimization.
+INFO: [Physopt 32-677] No candidate cells for Shift Register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-526] No candidate cells for BRAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-846] No candidate cells for URAM register optimization found in the design
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+INFO: [Physopt 32-949] No candidate nets found for dynamic/static region interface net replication
+INFO: [Physopt 32-775] End 1 Pass. Optimized 0 net or cell. Created 0 new cell, deleted 0 existing cell and moved 0 existing cell
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.009 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization                                     |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT Combining                                    |           15  |            173  |                   188  |           0  |           1  |  00:00:00  |
+|  Retime                                           |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Very High Fanout                                 |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  DSP Register                                     |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Shift Register to Pipeline                       |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Shift Register                                   |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  BRAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  URAM Register                                    |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Dynamic/Static Region Interface Net Replication  |            0  |              0  |                     0  |           0  |           1  |  00:00:00  |
+|  Total                                            |           15  |            173  |                   188  |           0  |           9  |  00:00:00  |
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Phase 2.5.2 Physical Synthesis In Placer | Checksum: 10aff3659
+
+Time (s): cpu = 00:00:37 ; elapsed = 00:00:23 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 2.5 Global Place Phase2 | Checksum: b604fe4f
+
+Time (s): cpu = 00:00:38 ; elapsed = 00:00:24 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 2 Global Placement | Checksum: b604fe4f
+
+Time (s): cpu = 00:00:38 ; elapsed = 00:00:24 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3 Detail Placement
+
+Phase 3.1 Commit Multi Column Macros
+Phase 3.1 Commit Multi Column Macros | Checksum: 100c611dd
+
+Time (s): cpu = 00:00:41 ; elapsed = 00:00:26 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3.2 Commit Most Macros & LUTRAMs
+Phase 3.2 Commit Most Macros & LUTRAMs | Checksum: 1fb89516e
+
+Time (s): cpu = 00:00:46 ; elapsed = 00:00:29 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3.3 Area Swap Optimization
+Phase 3.3 Area Swap Optimization | Checksum: 14db0b4d7
+
+Time (s): cpu = 00:00:47 ; elapsed = 00:00:29 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3.4 Pipeline Register Optimization
+Phase 3.4 Pipeline Register Optimization | Checksum: 1680f60ef
+
+Time (s): cpu = 00:00:47 ; elapsed = 00:00:29 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3.5 Fast Optimization
+Phase 3.5 Fast Optimization | Checksum: 1dbc2c8ae
+
+Time (s): cpu = 00:00:53 ; elapsed = 00:00:33 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3.6 Small Shape Detail Placement
+Phase 3.6 Small Shape Detail Placement | Checksum: e49d53cd
+
+Time (s): cpu = 00:00:57 ; elapsed = 00:00:37 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3.7 Re-assign LUT pins
+Phase 3.7 Re-assign LUT pins | Checksum: 14adf8a65
+
+Time (s): cpu = 00:00:58 ; elapsed = 00:00:38 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3.8 Pipeline Register Optimization
+Phase 3.8 Pipeline Register Optimization | Checksum: 1b389cc07
+
+Time (s): cpu = 00:00:58 ; elapsed = 00:00:38 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 3 Detail Placement | Checksum: 1b389cc07
+
+Time (s): cpu = 00:00:58 ; elapsed = 00:00:38 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 4 Post Placement Optimization and Clean-Up
+
+Phase 4.1 Post Commit Optimization
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+
+Phase 4.1.1 Post Placement Optimization
+Post Placement Optimization Initialization | Checksum: 145122088
+
+Phase 4.1.1.1 BUFG Insertion
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 2 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=-0.861 | TNS=-167.255 |
+Phase 1 Physical Synthesis Initialization | Checksum: 176de61ba
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.328 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Place 46-56] BUFG insertion identified 0 candidate nets. Inserted BUFG: 0, Replicated BUFG Driver: 0, Skipped due to Placement/Routing Conflicts: 0, Skipped due to Timing Degradation: 0, Skipped due to netlist editing failed: 0.
+Ending Physical Synthesis Task | Checksum: 1a6ef20b5
+
+Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.393 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 4.1.1.1 BUFG Insertion | Checksum: 145122088
+
+Time (s): cpu = 00:01:05 ; elapsed = 00:00:42 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 4.1.1.2 Post Placement Timing Optimization
+INFO: [Place 30-746] Post Placement Timing Summary WNS=0.069. For the most accurate timing information please run report_timing.
+Phase 4.1.1.2 Post Placement Timing Optimization | Checksum: ef4fe561
+
+Time (s): cpu = 00:03:13 ; elapsed = 00:02:50 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Time (s): cpu = 00:03:13 ; elapsed = 00:02:50 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 4.1 Post Commit Optimization | Checksum: ef4fe561
+
+Time (s): cpu = 00:03:13 ; elapsed = 00:02:50 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 4.2 Post Placement Cleanup
+Phase 4.2 Post Placement Cleanup | Checksum: ef4fe561
+
+Time (s): cpu = 00:03:13 ; elapsed = 00:02:50 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 4.3 Placer Reporting
+
+Phase 4.3.1 Print Estimated Congestion
+INFO: [Place 30-612] Post-Placement Estimated Congestion 
+ ____________________________________________________
+|           | Global Congestion | Short Congestion  |
+| Direction | Region Size       | Region Size       |
+|___________|___________________|___________________|
+|      North|                1x1|                2x2|
+|___________|___________________|___________________|
+|      South|                1x1|                1x1|
+|___________|___________________|___________________|
+|       East|                1x1|                1x1|
+|___________|___________________|___________________|
+|       West|                1x1|                1x1|
+|___________|___________________|___________________|
+
+Phase 4.3.1 Print Estimated Congestion | Checksum: ef4fe561
+
+Time (s): cpu = 00:03:14 ; elapsed = 00:02:51 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 4.3 Placer Reporting | Checksum: ef4fe561
+
+Time (s): cpu = 00:03:14 ; elapsed = 00:02:51 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 4.4 Final Placement Cleanup
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.010 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Time (s): cpu = 00:03:14 ; elapsed = 00:02:51 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 4 Post Placement Optimization and Clean-Up | Checksum: 189ffcf5e
+
+Time (s): cpu = 00:03:14 ; elapsed = 00:02:51 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Ending Placer Task | Checksum: 1715a8699
+
+Time (s): cpu = 00:03:14 ; elapsed = 00:02:51 . Memory (MB): peak = 2584.387 ; gain = 0.000
+38 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+place_design completed successfully
+place_design: Time (s): cpu = 00:03:16 ; elapsed = 00:02:52 . Memory (MB): peak = 2584.387 ; gain = 0.000
+# phys_opt_design -directive AggressiveExplore
+Command: phys_opt_design -directive AggressiveExplore
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Vivado_Tcl 4-137] Directive used for phys_opt_design is: AggressiveExplore
+
+Starting Initial Update Timing Task
+
+Time (s): cpu = 00:00:05 ; elapsed = 00:00:03 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Vivado_Tcl 4-2280] Estimated Timing Summary | WNS= 0.069 | TNS= 0.000 | WHS= -3.685 |
+INFO: [Vivado_Tcl 4-383] Design worst setup slack (WNS) is greater than or equal to 0.000 ns. All physical synthesis setup optimizations will be skipped.
+INFO: [Vivado_Tcl 4-1435] PhysOpt_Tcl_Interface Runtime Before Starting Physical Synthesis Task | CPU: 5.00s |  WALL: 3.00s
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Starting Physical Synthesis Task
+
+Phase 1 Physical Synthesis Initialization
+INFO: [Physopt 32-721] Multithreading enabled for phys_opt_design using a maximum of 2 CPUs
+INFO: [Physopt 32-619] Estimated Timing Summary | WNS=0.069 | TNS=0.000 |
+Phase 1 Physical Synthesis Initialization | Checksum: 12e63e68b
+
+Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.986 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2 Hold Fix Optimization
+INFO: [Physopt 32-668] Estimated Timing Summary | WNS=0.069 | TNS=0.000 | WHS=-3.685 | THS=-9.326 |
+INFO: [Physopt 32-45] Identified 2 candidate nets for hold slack optimization.
+INFO: [Physopt 32-234] Optimized 2 nets. Inserted 0 new ZHOLD_DELAYs. Calibrated 0 existing ZHOLD_DELAYs. Inserted 2 buffers.
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.012 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Physopt 32-668] Estimated Timing Summary | WNS=0.069 | TNS=0.000 | WHS=-0.054 | THS=-2.137 |
+Phase 2 Hold Fix Optimization | Checksum: 10aa56b4c
+
+Time (s): cpu = 00:00:03 ; elapsed = 00:00:01 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Physopt 32-669] Post Physical Optimization Timing Summary | WNS=0.069 | TNS=0.000 | WHS=-0.054 | THS=-2.137 |
+
+Summary of Physical Synthesis Optimizations
+============================================
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization            |  WNS Gain (ns)  |  TNS Gain (ns)  |  Added Cells  |  Removed Cells  |  Optimized Cells/Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Fanout                  |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Single Cell Placement   |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Multi Cell Placement    |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Rewire                  |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Critical Cell           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  SLR Crossing            |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  DSP Register            |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  BRAM Register           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  URAM Register           |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Shift Register          |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Critical Pin            |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Very High Fanout        |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+|  Total                   |          0.000  |          0.000  |            0  |              0  |                     0  |           0  |           0  |  00:00:00  |
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Summary of Hold Fix Optimizations
+=================================
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  Optimization               |  WHS Gain (ns)  |  THS Gain (ns)  |  Added LUTs  |  Added FFs  |  Optimized Nets  |  Dont Touch  |  Iterations  |  Elapsed   |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+|  LUT1 and ZHOLD Insertion   |          3.631  |          7.189  |           2  |          0  |               2  |           0  |           1  |  00:00:00  |
+|  Total                      |          3.631  |          7.189  |           2  |          0  |               2  |           0  |           1  |  00:00:00  |
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.008 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Ending Physical Synthesis Task | Checksum: 124c9eaf7
+
+Time (s): cpu = 00:00:03 ; elapsed = 00:00:02 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Common 17-83] Releasing license: Implementation
+13 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+phys_opt_design completed successfully
+# route_design
+Command: route_design
+Attempting to get a license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Implementation' and/or device 'xc7z020'
+INFO: [DRC 23-27] Running DRC with 2 threads
+INFO: [Vivado_Tcl 4-198] DRC finished with 0 Errors
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+
+
+Starting Routing Task
+INFO: [Route 35-254] Multithreading enabled for route_design using a maximum of 2 CPUs
+
+Phase 1 Build RT Design
+Checksum: PlaceDB: 9b08abe0 ConstDB: 0 ShapeSum: e99a800 RouteDB: 15f972f0
+Post Restoration Checksum: NetGraph: fba318ef | NumContArr: fe248f4f | Constraints: c2a8fa9d | Timing: c2a8fa9d
+Phase 1 Build RT Design | Checksum: 37f199d78
+
+Time (s): cpu = 00:00:24 ; elapsed = 00:00:19 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2 Router Initialization
+
+Phase 2.1 Fix Topology Constraints
+Phase 2.1 Fix Topology Constraints | Checksum: 37f199d78
+
+Time (s): cpu = 00:00:24 ; elapsed = 00:00:19 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 2.2 Pre Route Cleanup
+Phase 2.2 Pre Route Cleanup | Checksum: 37f199d78
+
+Time (s): cpu = 00:00:25 ; elapsed = 00:00:19 . Memory (MB): peak = 2584.387 ; gain = 0.000
+ Number of Nodes with overlaps = 0
+
+Phase 2.3 Update Timing
+Phase 2.3 Update Timing | Checksum: 2ae7e2ae8
+
+Time (s): cpu = 00:00:33 ; elapsed = 00:00:24 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.035 | TNS=-0.063 | WHS=-0.235 | THS=-576.038|
+
+
+Phase 2.4 Soft Constraint Pins - Fast Budgeting
+Phase 2.4 Soft Constraint Pins - Fast Budgeting | Checksum: 2c35e959b
+
+Time (s): cpu = 00:00:35 ; elapsed = 00:00:25 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 0 %
+  Global Horizontal Routing Utilization  = 0 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 14669
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 14669
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+Phase 2 Router Initialization | Checksum: 2a8b7b3a5
+
+Time (s): cpu = 00:00:36 ; elapsed = 00:00:26 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 3 Global Routing
+Phase 3 Global Routing | Checksum: 2a8b7b3a5
+
+Time (s): cpu = 00:00:36 ; elapsed = 00:00:26 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 4 Initial Routing
+
+Phase 4.1 Initial Net Routing Pass
+Phase 4.1 Initial Net Routing Pass | Checksum: 1fb8dcd72
+
+Time (s): cpu = 00:00:49 ; elapsed = 00:00:33 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 4 Initial Routing | Checksum: 1fb8dcd72
+
+Time (s): cpu = 00:00:49 ; elapsed = 00:00:33 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Route 35-580] Design has 3 pins with tight setup and hold constraints.
+
+The top 5 pins with tight setup and hold constraints:
+
++====================+===================+==============================================+
+| Launch Setup Clock | Launch Hold Clock | Pin                                          |
++====================+===================+==============================================+
+| clk_proc           | clk_proc          | g_chan[0].u_canny/u_hyst/m_edge_d_reg/D      |
+| clk_proc           | clk_proc          | g_chan[1].u_canny/u_hyst/m_edge_d_reg/D      |
+| clk_proc           | clk_proc          | g_chan[1].u_canny/u_hyst/win_data_r_reg[1]/D |
++--------------------+-------------------+----------------------------------------------+
+
+File with complete list of pins: tight_setup_hold_pins.txt
+
+
+Phase 5 Rip-up And Reroute
+
+Phase 5.1 Global Iteration 0
+ Number of Nodes with overlaps = 1627
+ Number of Nodes with overlaps = 291
+ Number of Nodes with overlaps = 136
+ Number of Nodes with overlaps = 67
+ Number of Nodes with overlaps = 47
+ Number of Nodes with overlaps = 15
+ Number of Nodes with overlaps = 7
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.142 | TNS=-0.371 | WHS=N/A    | THS=N/A    |
+
+Phase 5.1 Global Iteration 0 | Checksum: 1fb2a4e74
+
+Time (s): cpu = 00:01:11 ; elapsed = 00:00:50 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 5.2 Global Iteration 1
+ Number of Nodes with overlaps = 205
+ Number of Nodes with overlaps = 94
+ Number of Nodes with overlaps = 28
+ Number of Nodes with overlaps = 10
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 3
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.026 | TNS=-0.037 | WHS=N/A    | THS=N/A    |
+
+Phase 5.2 Global Iteration 1 | Checksum: 1126be436
+
+Time (s): cpu = 00:01:16 ; elapsed = 00:00:54 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 5.3 Global Iteration 2
+ Number of Nodes with overlaps = 189
+ Number of Nodes with overlaps = 56
+ Number of Nodes with overlaps = 22
+ Number of Nodes with overlaps = 4
+ Number of Nodes with overlaps = 2
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 1
+ Number of Nodes with overlaps = 0
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=-0.043 | TNS=-0.054 | WHS=N/A    | THS=N/A    |
+
+Phase 5.3 Global Iteration 2 | Checksum: 1ae51eacd
+
+Time (s): cpu = 00:01:20 ; elapsed = 00:00:57 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 5 Rip-up And Reroute | Checksum: 1ae51eacd
+
+Time (s): cpu = 00:01:20 ; elapsed = 00:00:57 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 6 Delay and Skew Optimization
+
+Phase 6.1 Delay CleanUp
+
+Phase 6.1.1 Update Timing
+Phase 6.1.1 Update Timing | Checksum: 206410a94
+
+Time (s): cpu = 00:01:21 ; elapsed = 00:00:57 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.078  | TNS=0.000  | WHS=N/A    | THS=N/A    |
+
+Phase 6.1 Delay CleanUp | Checksum: 206410a94
+
+Time (s): cpu = 00:01:21 ; elapsed = 00:00:57 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 6.2 Clock Skew Optimization
+Phase 6.2 Clock Skew Optimization | Checksum: 206410a94
+
+Time (s): cpu = 00:01:21 ; elapsed = 00:00:57 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 6 Delay and Skew Optimization | Checksum: 206410a94
+
+Time (s): cpu = 00:01:21 ; elapsed = 00:00:57 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 7 Post Hold Fix
+
+Phase 7.1 Hold Fix Iter
+INFO: [Route 35-416] Intermediate Timing Summary | WNS=0.078  | TNS=0.000  | WHS=0.018  | THS=0.000  |
+
+Phase 7.1 Hold Fix Iter | Checksum: 1d472132e
+
+Time (s): cpu = 00:01:22 ; elapsed = 00:00:58 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Phase 7 Post Hold Fix | Checksum: 1d472132e
+
+Time (s): cpu = 00:01:22 ; elapsed = 00:00:58 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 8 Route finalize
+
+Router Utilization Summary
+  Global Vertical Routing Utilization    = 4.31858 %
+  Global Horizontal Routing Utilization  = 5.7167 %
+  Routable Net Status*
+  *Does not include unroutable nets such as driverless and loadless.
+  Run report_route_status for detailed report.
+  Number of Failed Nets               = 0
+    (Failed Nets is the sum of unrouted and partially routed nets)
+  Number of Unrouted Nets             = 0
+  Number of Partially Routed Nets     = 0
+  Number of Node Overlaps             = 0
+
+Phase 8 Route finalize | Checksum: 1d472132e
+
+Time (s): cpu = 00:01:22 ; elapsed = 00:00:58 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 9 Verifying routed nets
+
+ Verification completed successfully
+Phase 9 Verifying routed nets | Checksum: 1d472132e
+
+Time (s): cpu = 00:01:22 ; elapsed = 00:00:58 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 10 Depositing Routes
+Phase 10 Depositing Routes | Checksum: 278f32c9c
+
+Time (s): cpu = 00:01:24 ; elapsed = 00:01:00 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 11 Post Process Routing
+Phase 11 Post Process Routing | Checksum: 278f32c9c
+
+Time (s): cpu = 00:01:24 ; elapsed = 00:01:00 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Phase 12 Post Router Timing
+INFO: [Route 35-57] Estimated Timing Summary | WNS=0.078  | TNS=0.000  | WHS=0.018  | THS=0.000  |
+
+INFO: [Route 35-327] The final timing numbers are based on the router estimated timing analysis. For a complete and accurate timing signoff, please run report_timing_summary.
+Phase 12 Post Router Timing | Checksum: 278f32c9c
+
+Time (s): cpu = 00:01:24 ; elapsed = 00:01:00 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Total Elapsed time in route_design: 60.057 secs
+
+Phase 13 Post-Route Event Processing
+Phase 13 Post-Route Event Processing | Checksum: 89a181ef
+
+Time (s): cpu = 00:01:24 ; elapsed = 00:01:00 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Route 35-16] Router Completed Successfully
+Ending Routing Task | Checksum: 89a181ef
+
+Time (s): cpu = 00:01:24 ; elapsed = 00:01:00 . Memory (MB): peak = 2584.387 ; gain = 0.000
+
+Routing Is Done.
+INFO: [Common 17-83] Releasing license: Implementation
+16 Infos, 0 Warnings, 0 Critical Warnings and 0 Errors encountered.
+route_design completed successfully
+route_design: Time (s): cpu = 00:01:25 ; elapsed = 00:01:00 . Memory (MB): peak = 2584.387 ; gain = 0.000
+# report_timing_summary -file out/timing_sweet.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1, Delay Type: min_max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 2 CPUs
+# set wns [get_property SLACK [get_timing_paths -max_paths 1 -nworst 1]]
+# puts "RESULT(SWEET): WNS = $wns ns"
+RESULT(SWEET): WNS = 0.083 ns
+# write_checkpoint -force out/vision_top_sweet.dcp
+INFO: [Timing 38-480] Writing timing data to binary archive.
+Wrote PlaceDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Wrote PulsedLatchDB: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Writing XDEF routing.
+Writing XDEF routing logical nets.
+Write ShapeDB Complete: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.034 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Writing XDEF routing special nets.
+Wrote RouteStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.189 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Wrote PlaceStorage: Time (s): cpu = 00:00:01 ; elapsed = 00:00:00.629 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Wrote Netlist Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.021 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Wrote Device Cache: Time (s): cpu = 00:00:00 ; elapsed = 00:00:00.007 . Memory (MB): peak = 2584.387 ; gain = 0.000
+Write Physdb Complete: Time (s): cpu = 00:00:02 ; elapsed = 00:00:00.858 . Memory (MB): peak = 2584.387 ; gain = 0.000
+INFO: [Common 17-1381] The checkpoint 'E:/AMD_FPGA/Projects/Sim_GPU - Copy/out/vision_top_sweet.dcp' has been generated.
+# puts "BUILD DONE"
+BUILD DONE
+INFO: [Common 17-206] Exiting Vivado at Sat Aug 22 08:14:33 2026...

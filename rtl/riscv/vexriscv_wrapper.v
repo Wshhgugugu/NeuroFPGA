@@ -54,6 +54,7 @@ module vexriscv_wrapper #(
         reg [3:0]   state;
         reg [2:0]   step;
         reg [31:0]  id_val;
+        reg [44:0]  seq_r;      // 函数结果暂存 (函数调用不可位选)
 
         // 序列表: {addr, wdata, is_write}
         function [44:0] seq(input [2:0] idx);
@@ -79,15 +80,16 @@ module vexriscv_wrapper #(
                     end
                     // ---- 写序列 ----
                     S_WR0_A: begin
-                        if (seq(step)[44]) begin
+                        seq_r = seq(step);
+                        if (seq_r[44]) begin
                             m_awvalid <= 1;
-                            m_awaddr  <= seq(step)[43:32];
+                            m_awaddr  <= seq_r[43:32];
                             m_wvalid  <= 1;
-                            m_wdata   <= seq(step)[31:0];
+                            m_wdata   <= seq_r[31:0];
                             state <= S_WR0_W;
                         end else begin
                             m_arvalid <= 1;
-                            m_araddr  <= seq(step)[43:32];
+                            m_araddr  <= seq_r[43:32];
                             state <= S_RD_ID_W;
                         end
                     end

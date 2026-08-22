@@ -42,9 +42,9 @@ module hysteresis #(
     localparam integer AB = $clog2(N);
     localparam integer CB = $clog2(IMG_W);
 
-    // 帧图 (SDP: 独立写口/读口)
-    reg strong_mem [0:N-1];
-    reg weak_mem   [0:N-1];
+    // 帧图: 单写口 (相位复用) + 单同步读口 (rd_addr) — 规范形式保证 BRAM 推断
+    (* ram_style = "block" *) reg strong_mem [0:N-1];
+    (* ram_style = "block" *) reg weak_mem   [0:N-1];
 
     // 状态
     localparam [2:0] PH_IDLE   = 3'd0;
@@ -58,6 +58,8 @@ module hysteresis #(
     reg [7:0]    pass_cnt;
     reg [AB-1:0] cap_addr;
 
+
+
     assign busy = (phase != PH_IDLE);
 
     // ------------------------------------------------------------------
@@ -70,6 +72,14 @@ module hysteresis #(
 
     wire rd_pix  = rd_run && (rd_x < IMG_W);          // 本拍有像素
     wire rd_last = rd_pix && (rd_addr == N-1);
+    reg  rd_last_d, rd_eol_d;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin rd_last_d <= 0; rd_eol_d <= 0; end
+        else begin
+            rd_last_d <= rd_last;
+            rd_eol_d  <= rd_pix && (rd_x == IMG_W-1);
+        end
+    end
 
     // ------------------------------------------------------------------
     // 窗口引擎 (3x3, 流字 = {weak, strong})
@@ -80,11 +90,50 @@ module hysteresis #(
     wire [$clog2(IMG_W)-1:0] wr_col;
     wire                     we;
 
-    wire [1:0] rd_word = {weak_mem[rd_addr], strong_mem[rd_addr]};
+    // 窗口引擎输入: 读出打一拍 (rd_word_q 与 rd_pix_r 对齐), 再打一拍
+    // 切断 BRAM CLK->Q 到窗口分布式 RAM 写口的组合路径 (时序收敛)
+    reg rd_pix_r, rd_sof_r;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin rd_pix_r <= 0; rd_sof_r <= 0; end
+        else begin
+            rd_pix_r <= rd_pix;
+            rd_sof_r <= rd_sof && rd_pix;
+        end
+    end
+
+    reg [1:0] rd_word_q;   // 帧图同步读出 (供窗口引擎与输出段)
+    // 注: 不可加 keep/dont_touch — 两者都会扰动 Vivado 对 strong/weak_mem 的
+    //     BRAM 推断, 触发 LUTRAM 爆炸 (41k~82k LUTRAM, 超器件 2~4 倍)
+    reg       m_edge_d;    // m_edge 前置打拍 (BRAM 读出口路径收敛)
+    reg       m_valid_d, m_sof_d, m_eol_d, m_eof_d;   // 输出级寄存器
+
+    // 输出级: 与 m_edge_d 对齐 (整帧输出统一晚 1 拍)
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            m_valid <= 0; m_edge <= 0; m_sof <= 0; m_eol <= 0; m_eof <= 0;
+        end else begin
+            m_valid <= m_valid_d;
+            m_edge  <= m_edge_d;
+            m_sof   <= m_sof_d;
+            m_eol   <= m_eol_d;
+            m_eof   <= m_eof_d;
+        end
+    end
+
+    reg [1:0] win_data_r;
+    reg       win_val_r, win_sof_r;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin win_data_r <= 0; win_val_r <= 0; win_sof_r <= 0; end
+        else begin
+            win_data_r <= rd_word_q;
+            win_val_r  <= rd_pix_r;
+            win_sof_r  <= rd_sof_r && rd_pix_r;
+        end
+    end
 
     window_kxk #(.K(3), .DW(2), .IMG_W(IMG_W), .IMG_H(IMG_H)) u_win (
         .clk(clk), .rst_n(rst_n),
-        .s_valid(rd_pix), .s_sof(rd_sof && rd_pix), .s_data(rd_word),
+        .s_valid(win_val_r), .s_sof(win_sof_r), .s_data(win_data_r),
         .w_valid(wv), .w_pix(wp), .w_row(wr_row), .w_col(wr_col), .w_eof(we)
     );
 
@@ -98,29 +147,43 @@ module hysteresis #(
     // 晋升地址 = 发射序号 (行主序)
     reg [AB-1:0] em_addr;
 
+    wire       st_we = (phase == PH_IDLE  && s_valid && s_sof) ||
+                       (phase == PH_CAPT  && s_valid) ||
+                       (phase == PH_PASS  && promote);
+    wire [AB-1:0] st_wa = (phase == PH_IDLE)  ? {AB{1'b0}} :
+                           (phase == PH_CAPT) ? cap_addr : em_addr;
+    wire       st_wd = (phase == PH_PASS) ? 1'b1 : (s_class == 2'd2);
+
+    wire       wk_we = (phase == PH_IDLE && s_valid && s_sof) ||
+                       (phase == PH_CAPT && s_valid);
+    wire [AB-1:0] wk_wa = (phase == PH_IDLE) ? {AB{1'b0}} : cap_addr;
+    wire       wk_wd = (s_class == 2'd1);
+
+    always @(posedge clk) begin
+        if (st_we) strong_mem[st_wa] <= st_wd;
+        if (wk_we) weak_mem[wk_wa]   <= wk_wd;
+        rd_word_q  <= {weak_mem[rd_addr], strong_mem[rd_addr]};
+    end
+
     // ------------------------------------------------------------------
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             phase <= PH_IDLE; changed <= 1'b0; pass_cnt <= 0; cap_addr <= 0;
             rd_run <= 0; rd_addr <= 0; rd_x <= 0; rd_sof <= 0; em_addr <= 0;
-            m_valid <= 0; m_edge <= 0; m_sof <= 0; m_eol <= 0; m_eof <= 0;
+            m_valid_d <= 0; m_sof_d <= 0; m_eol_d <= 0; m_eof_d <= 0;
         end else begin
-            m_valid <= 1'b0;
+            m_valid_d <= 1'b0;
 
             case (phase)
                 // ------------------------------------------------------
                 PH_IDLE: if (s_valid && s_sof) begin
-                    // 帧首像素当拍入库 (状态切换是 NBA, 本拍不进 CAPT 分支)
-                    strong_mem[0] <= (s_class == 2'd2);
-                    weak_mem[0]   <= (s_class == 2'd1);
+                    // 帧首像素经端口 mux 入库 (st_we/wk_we 已含本拍)
                     cap_addr <= 1;
                     phase <= PH_CAPT;
                 end
 
                 // ------------------------------------------------------
                 PH_CAPT: if (s_valid) begin
-                    strong_mem[cap_addr] <= (s_class == 2'd2);
-                    weak_mem[cap_addr]   <= (s_class == 2'd1);
                     if (cap_addr == N-1 || s_eof) begin
                         phase <= PH_PASS; changed <= 1'b0; pass_cnt <= 0;
                         rd_run <= 1'b1; rd_addr <= 0; rd_x <= 0;
@@ -145,10 +208,8 @@ module hysteresis #(
                         end
                     end
 
-                    if (promote) begin
-                        strong_mem[em_addr] <= 1'b1;
-                        changed <= 1'b1;
-                    end
+                    if (promote)
+                        changed <= 1'b1;   // 写入由端口 mux (st_we) 完成
                     if (wv) em_addr <= em_addr + 1'b1;
 
                     // 读喂完 + 引擎冲刷完 (we) -> 检查
@@ -171,13 +232,19 @@ module hysteresis #(
 
                 // ------------------------------------------------------
                 PH_OUTPUT: begin
+                    // 发射流水 (读推进保持 rd_pix 原节奏, 数据打一拍对齐)
+                    // 输出统一进输出级 (m_*_d), BRAM 读出口路径拆成
+                    // BRAM->rd_word_q->m_edge_d->m_edge 三段
+                    if (rd_pix_r) begin
+                        m_valid_d <= 1'b1;
+                        m_edge_d  <= rd_word_q[0];   // 与 rd_pix_r 同拍 = 上拍地址数据
+                        m_sof_d   <= rd_sof_r;
+                        m_eol_d   <= rd_eol_d;
+                        m_eof_d   <= rd_last_d;
+                    end
+                    // 读图推进 (与 PASS 段完全同构)
                     if (rd_run) begin
                         if (rd_pix) begin
-                            m_valid <= 1'b1;
-                            m_edge  <= strong_mem[rd_addr];
-                            m_sof   <= rd_sof;
-                            m_eol   <= (rd_x == IMG_W-1);
-                            m_eof   <= rd_last;
                             if (rd_x == IMG_W-1) rd_x <= IMG_W;  // 进 2 空拍
                             else                 rd_x <= rd_x + 1'b1;
                             rd_addr <= rd_addr + 1'b1;

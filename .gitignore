@@ -1,19 +1,19 @@
-out/
-.Xil/
-*.jou
-*.log
-*.str
+# 仿真产物
+xsim.dir/
 *.wdb
-vivado.backup.*
-*.cache/
-*.hw/
-*.ip_user_files/
-*.sim/
-xvlog.log
-xelab.log
-xsim.log
-xvlog.pb
-xelab.pb
-xsim.pb
-__pycache__/
-*.pyc
+xelab.log xelab.pb xvlog.log xvlog.pb xsim.log xsim.jou
+xsim_*.backup.*
+
+# Vivado 工程/日志
+Sim_GPU.cache/ Sim_GPU.hw/ Sim_GPU.ip_user_files/ Sim_GPU.sim/
+vivado*.log vivado*.jou vivado*.backup.*
+retry_open_fs.log
+*.str
+
+# 构建产物 (checkpoint 报告保留在 out, dcp 太大不入库)
+out/*.dcp
+out/*.log
+out/*.rpt.tmp
+
+# 临时
+*.tmp

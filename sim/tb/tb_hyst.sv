@@ -66,7 +66,12 @@ module tb_hyst;
         @(posedge clk); s_valid<=0;
     end
 
+    integer fdo;
     always @(posedge clk) if (m_valid && out_cnt<N) begin
+        if (out_cnt==0) fdo=$fopen("out/rtl_hyst.hex","w");
+        $fwrite(fdo, "%02X", m_edge);
+        $fwrite(fdo, "\n");
+        if (out_cnt==N-1) $fclose(fdo);
         if (m_edge !== gold[out_cnt][0]) begin
             errors=errors+1;
             if (errors<=10)

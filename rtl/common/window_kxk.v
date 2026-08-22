@@ -62,18 +62,24 @@ module window_kxk #(
     // 行尾补零区 (x>=W) 与冲刷行: 无数据也推进零移位
     wire shift_z   = sof_seen && !pop && (x >= IMG_W || flushing) && (x < XMAX);
     wire shift     = pop || shift_z;
-    reg [DW-1:0] mem [0:NPREV-1][0:IMG_W-1];
-
+    // 行存: 每 bank 独立 1D 数组 (generate) + 连续赋值异步读 -> 分布式 RAM
+    //   (2D 数组+组合遍历读会被综合器摊成 FF+巨型多路器, 22k+ LUT 教训)
     wire [CB-1:0] rd_col = x[CB-1:0];
-    reg  [DW-1:0] feed_bank [0:NPREV-1];
+    wire [DW-1:0] feed_bank [0:NPREV-1];
     // start 拍 sof_seen 仍为 0, 单独让数据进 live 链
     wire [DW-1:0] feed_live = (start || in_real) ? s_data : {DW{1'b0}};
 
-    integer bi;
-    always @(*) begin
-        for (bi = 0; bi < NPREV; bi = bi + 1)
-            feed_bank[bi] = (x < IMG_W) ? mem[bi][rd_col] : {DW{1'b0}};
-    end
+    genvar gb;
+    generate
+        for (gb = 0; gb < NPREV; gb = gb + 1) begin : g_bank
+            (* ram_style = "distributed" *) reg [DW-1:0] mem_b [0:IMG_W-1];
+            wire bank_wr = start ? (gb == 0) : ((r % NPREV) == gb);
+            always @(posedge clk)
+                if (pop && x < IMG_W && bank_wr)
+                    mem_b[rd_col] <= s_data;
+            assign feed_bank[gb] = (x < IMG_W) ? mem_b[rd_col] : {DW{1'b0}};
+        end
+    endgenerate
 
     // 移位链: sr[j] (j<NPREV) 由 bank j 馈送; sr[NPREV] 为 live 行
     reg [K-1:0][DW-1:0] sr [0:NPREV];
@@ -84,11 +90,75 @@ module window_kxk #(
     endfunction
 
     integer i, k, j;
-    reg signed [RB+3:0] arow;
 
     // 发射条件: 中心在图内
     wire emit = shift && (x >= HALF) && (r >= HALF);
     wire last_win = (r == IMG_H + HALF - 1) && (x == XMAX - 1);
+
+    // ------------------------------------------------------------------
+    // 发射拆拍 (时序收敛): 段1 每拍捕获 bank 选择/零填充/发射标志,
+    // 段2 组合只剩 2:1 mux, 消除 bank 译码+分布式RAM读的长路径
+    // ------------------------------------------------------------------
+    // 段 1: bank_of 译码 + sr/feed 捕获 + 零填充判断 + emit 标志
+    reg [DW-1:0] src_reg [0:K-2][0:K-1];     // 各行 i 的移位前 sr 全槽
+    reg [DW-1:0] src_feed_reg [0:K-2];       // 各行 i 的 feed_bank
+    reg [DW-1:0] src_live_reg [0:K-1];       // live 行 (拍 T 捕获)
+    reg [K-2:0]  zero_reg;                   // 各行 i 越界标志
+    reg          emit_p, last_p;
+    reg [RB+1:0] r_p;
+    reg [XB-1:0] x_p;
+
+    integer ii;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            for (ii = 0; ii < K-1; ii = ii + 1) begin
+                src_feed_reg[ii] <= 0;
+                for (k = 0; k < K; k = k + 1) src_reg[ii][k] <= 0;
+            end
+            for (k = 0; k < K; k = k + 1) src_live_reg[k] <= 0;
+            zero_reg <= 0;
+            emit_p <= 0; last_p <= 0; r_p <= 0; x_p <= 0;
+        end else begin
+            for (ii = 0; ii < K-1; ii = ii + 1) begin
+                src_feed_reg[ii] <= feed_bank[bank_of(r, ii)];
+                for (k = 0; k < K; k = k + 1)
+                    src_reg[ii][k] <= sr[bank_of(r, ii)][k];
+                zero_reg[ii] <= (($signed(r) - K + 1 + ii) < 0) ||
+                                (($signed(r) - K + 1 + ii) >= $signed(IMG_H));
+            end
+            for (k = 0; k < K; k = k + 1)
+                src_live_reg[k] <= (k == K-1) ? feed_live : sr[NPREV][k+1];
+            emit_p <= emit;
+            last_p <= last_win;
+            r_p <= r;
+            x_p <= x;
+        end
+    end
+
+    // 段 2: 发射 (用段 1 的拍 T 状态, 窗口输出整体晚 1 拍)
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            w_valid <= 0; w_eof <= 0; w_row <= 0; w_col <= 0;
+            w_pix <= '0;
+        end else begin
+            w_valid <= 1'b0;
+            w_eof   <= 1'b0;
+            if (emit_p) begin
+                w_valid <= 1'b1;
+                w_col   <= x_p - HALF;
+                w_row   <= r_p - HALF;
+                w_eof   <= last_p;
+                for (i = 0; i < K - 1; i = i + 1) begin
+                    for (k = 0; k < K; k = k + 1)
+                        w_pix[i][k] <= zero_reg[i] ? {DW{1'b0}}
+                                      : (k == K-1 ? src_feed_reg[i]
+                                                  : src_reg[i][k+1]);
+                end
+                for (k = 0; k < K; k = k + 1)
+                    w_pix[K-1][k] <= src_live_reg[k];
+            end
+        end
+    end
 
     // ------------------------------------------------------------------
     // 主时序
@@ -97,15 +167,10 @@ module window_kxk #(
         if (!rst_n) begin
             sof_seen <= 1'b0;
             x <= 0; r <= 0;
-            w_valid <= 0; w_eof <= 0; w_row <= 0; w_col <= 0;
             for (j = 0; j <= NPREV; j = j + 1)
                 for (k = 0; k < K; k = k + 1)
                     sr[j][k] <= 0;
-            w_pix <= '0;
         end else begin
-            w_valid <= 1'b0;
-            w_eof   <= 1'b0;
-
             if (start) begin
                 sof_seen <= 1'b1;
                 x <= 1;                  // x=0 的移位本拍完成
@@ -122,34 +187,6 @@ module window_kxk #(
                 for (k = 0; k < K - 1; k = k + 1)
                     sr[NPREV][k] <= sr[NPREV][k+1];
                 sr[NPREV][K-1] <= feed_live;
-
-                // 写 bank: 当前行写入 bank r%NPREV (只写实数列; start 拍 r 未复位 -> 行 0 固定 bank 0)
-                if (pop && x < IMG_W) begin
-                    if (start)
-                        mem[0][rd_col] <= s_data;
-                    else
-                        mem[r % NPREV][rd_col] <= s_data;
-                end
-
-                // 窗口发射: NBA 读移位前的 sr (k<K-1 取 [k+1] 即移位后的槽 k,
-                // 槽 k = 窗列 k; 行尾 feed 落在槽 K-1)
-                if (emit) begin
-                    w_valid <= 1'b1;
-                    w_col   <= x - HALF;
-                    w_row   <= r - HALF;
-                    w_eof   <= last_win;
-                    for (i = 0; i < K - 1; i = i + 1) begin
-                        arow = r - K + 1 + i;    // 阻塞: 供循环内判断
-                        for (k = 0; k < K; k = k + 1)
-                            w_pix[i][k] <= (arow < 0 || arow >= IMG_H)
-                                         ? {DW{1'b0}}
-                                         : (k == K-1 ? feed_bank[bank_of(r, i)]
-                                                     : sr[bank_of(r, i)][k+1]);
-                    end
-                    for (k = 0; k < K; k = k + 1)
-                        w_pix[K-1][k] <= (k == K-1) ? feed_live
-                                                    : sr[NPREV][k+1];
-                end
 
                 // 行/帧推进 (start 分支已处理 x=0)
                 if (!start) begin

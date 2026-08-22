@@ -109,6 +109,10 @@ module axi_crossbar_wrap #(
                     s_rdata <= {24'd0, snn_cnt[(s_araddr-12'h030)>>2]};
                 else case (s_araddr)
                     12'h000: s_rdata <= {chip_id, 16'h0001};
+                    12'h004: s_rdata <= {30'd0, mode_raw};
+                    12'h008: s_rdata <= {20'd0, th_hi};
+                    12'h00C: s_rdata <= {20'd0, th_lo};
+                    12'h010: s_rdata <= {8'd0, snn_vth};
                     12'h018: s_rdata <= {23'd0, addr_err, 3'd0, canny_busy,
                                          snn_busy, snn_done, cfg_done, id_ok};
                     default: s_rdata <= 32'hDEAD_BEEF;

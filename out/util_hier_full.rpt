@@ -1,0 +1,50 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
+| Date         : Sun Aug 16 07:45:06 2026
+| Host         : wshh running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -file out/util_hier_full.rpt
+| Design       : vision_top
+| Device       : xc7z020clg484-1
+| Speed File   : -1
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++------------------+-------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+|     Instance     |             Module            | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++------------------+-------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+| vision_top       |                         (top) |       4048 |       2569 |    1464 |   15 | 2373 |     20 |      0 |          4 |
+|   (vision_top)   |                         (top) |        607 |          7 |     600 |    0 |   45 |      0 |      0 |          0 |
+|   u_cam          |                   ov5640_ctrl |        279 |        279 |       0 |    0 |  182 |      0 |      0 |          1 |
+|     (u_cam)      |                   ov5640_ctrl |        205 |        205 |       0 |    0 |  125 |      0 |      0 |          1 |
+|     u_sccb       |                   sccb_master |         74 |         74 |       0 |    0 |   57 |      0 |      0 |          0 |
+|   u_canny        |                     canny_top |       2592 |       2097 |     480 |   15 | 1996 |     20 |      0 |          3 |
+|     u_gauss      |                  gaussian_5x5 |        651 |        651 |       0 |    0 |  567 |      0 |      0 |          0 |
+|       (u_gauss)  |                  gaussian_5x5 |        177 |        177 |       0 |    0 |  162 |      0 |      0 |          0 |
+|       u_win      |                    window_kxk |        479 |        479 |       0 |    0 |  405 |      0 |      0 |          0 |
+|     u_hyst       |                    hysteresis |        248 |        208 |      40 |    0 |  145 |     20 |      0 |          0 |
+|       (u_hyst)   |                    hysteresis |        127 |        127 |       0 |    0 |  103 |     20 |      0 |          0 |
+|       u_win      |    window_kxk__parameterized2 |        122 |         82 |      40 |    0 |   42 |      0 |      0 |          0 |
+|     u_mag        |              gradient_mag_dir |         67 |         65 |       0 |    2 |   70 |      0 |      0 |          3 |
+|     u_med        |                    median_3x3 |        529 |        516 |       0 |   13 |  651 |      0 |      0 |          0 |
+|       (u_med)    |                    median_3x3 |        263 |        250 |       0 |   13 |  423 |      0 |      0 |          0 |
+|       u_win      | window_kxk__parameterized1_17 |        266 |        266 |       0 |    0 |  228 |      0 |      0 |          0 |
+|     u_nms        |                           nms |        547 |        267 |     280 |    0 |  247 |      0 |      0 |          0 |
+|       u_win      |    window_kxk__parameterized1 |        534 |        254 |     280 |    0 |  232 |      0 |      0 |          0 |
+|     u_scharr     |                    scharr_3x3 |        549 |        389 |     160 |    0 |  311 |      0 |      0 |          0 |
+|       (u_scharr) |                    scharr_3x3 |        108 |        108 |       0 |    0 |  157 |      0 |      0 |          0 |
+|       u_win      |    window_kxk__parameterized0 |        441 |        281 |     160 |    0 |  154 |      0 |      0 |          0 |
+|   u_cdc_px       |                    fifo_async |        524 |        140 |     384 |    0 |   95 |      0 |      0 |          0 |
++------------------+-------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

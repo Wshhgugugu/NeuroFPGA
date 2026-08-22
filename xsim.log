@@ -1,0 +1,63 @@
+#-----------------------------------------------------------
+# xsim v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Sat Aug 22 08:37:03 2026
+# Process ID         : 9920
+# Current directory  : E:/AMD_FPGA/Projects/Sim_GPU - Copy
+# Command line       : xsim.exe -mode tcl -source {xsim.dir/reg_tb_canny/xsim_script.tcl}
+# Log file           : E:/AMD_FPGA/Projects/Sim_GPU - Copy/xsim.log
+# Journal file       : E:/AMD_FPGA/Projects/Sim_GPU - Copy\xsim.jou
+# Running On         : wshh
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i7-13700H
+# CPU Frequency      : 2918 MHz
+# CPU Physical cores : 14
+# CPU Logical cores  : 20
+# Host memory        : 34070 MB
+# Swap memory        : 13028 MB
+# Total Virtual      : 47098 MB
+# Available Virtual  : 26589 MB
+#-----------------------------------------------------------
+source xsim.dir/reg_tb_canny/xsim_script.tcl
+# xsim {reg_tb_canny} -autoloadwcfg -runall
+Time resolution is 1 ps
+run -all
+[scharr 0] gx rtl=1169 gold=549 gy rtl=1169 gold=549
+[scharr 1] gx rtl=381 gold=181 gy rtl=1739 gold=815
+[mag 0] mag rtl=2338 gold=1098 dir rtl=1 gold=1
+[scharr 2] gx rtl=71 gold=29 gy rtl=1899 gold=887
+[mag 1] mag rtl=2120 gold=996 dir rtl=2 gold=2
+[scharr 3] gx rtl=0 gold=0 gy rtl=1920 gold=896
+[mag 2] mag rtl=1970 gold=916 dir rtl=2 gold=2
+[scharr 4] gx rtl=0 gold=0 gy rtl=1920 gold=896
+[mag 3] mag rtl=1920 gold=896 dir rtl=2 gold=2
+[mag 4] mag rtl=1920 gold=896 dir rtl=2 gold=2
+[med 1] rtl=1142 gold=532
+  win: 0000 0000 0000 / 0780 0780 0780 / 0280 0280 0280
+  r0=000000000 r1=780780780 r2=280280280 maxmin=780 minmax=000 medrow=280
+[med 2] rtl=740 gold=346
+  win: 0000 0000 0000 / 0780 0780 0780 / 0280 0280 0280
+  r0=000000000 r1=780780780 r2=280280280 maxmin=780 minmax=000 medrow=280
+[med 3] rtl=640 gold=304
+  win: 0000 0000 0000 / 0780 0780 0780 / 0280 0280 0280
+  r0=000000000 r1=780780780 r2=280280280 maxmin=780 minmax=000 medrow=280
+medwin r=0 c=61: 0000 0000 0000 / 0780 07b2 0848 / 0280 02e4 0476
+medwin r=0 c=62: 0000 0000 0000 / 07b2 0848 0922 / 02e4 0476 0848
+medwin r=0 c=63: 0000 0000 0000 / 0848 0922 0000 / 0476 0848 0000
+[nms 2] rtl=740 gold=346 dir=2
+[nms 3] rtl=640 gold=304 dir=2
+[nms 4] rtl=640 gold=304 dir=2
+[nms 5] rtl=640 gold=304 dir=2
+[nms 6] rtl=640 gold=304 dir=2
+medwin r=1 c=61: 0780 07b2 0848 / 0280 02e4 0476 / 0080 00fa 02e4
+medwin r=1 c=62: 07b2 0848 0922 / 02e4 0476 0848 / 00fa 02e4 07b2
+medwin r=1 c=63: 0848 0922 0000 / 0476 0848 0000 / 02e4 07b2 0000
+stage errs: scharr=1965/4096 mag=1965/4096 med=1995/4096 nms=839/4096
+TP=484 FP=0 FN=0 precision=1.000000 recall=1.000000 F1=1.000000
+=== tb_canny: PASS (bit-exact vs golden, F1=1.000000) ===
+$finish called at time : 173815 ns : File "E:/AMD_FPGA/Projects/Sim_GPU - Copy/sim/tb/tb_canny.sv" Line 220
+exit
+INFO: [Common 17-206] Exiting xsim at Sat Aug 22 08:37:05 2026...

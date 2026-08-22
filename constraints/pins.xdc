@@ -39,44 +39,44 @@ set_property IOSTANDARD LVCMOS33 [get_ports pclk]
 create_clock -period 17.000 -name cam_pclk [get_ports pclk]
 
 # ---- OV5640 数据总线 D0..D7 ----
-set_property PACKAGE_PIN Y13  [get_ports {data_in[0]}]
-set_property PACKAGE_PIN AB15 [get_ports {data_in[1]}]
-set_property PACKAGE_PIN Y18  [get_ports {data_in[2]}]
-set_property PACKAGE_PIN AA16 [get_ports {data_in[3]}]
-set_property PACKAGE_PIN AA19 [get_ports {data_in[4]}]
-set_property PACKAGE_PIN AB20 [get_ports {data_in[5]}]
-set_property PACKAGE_PIN AB21 [get_ports {data_in[6]}]
-set_property PACKAGE_PIN AA22 [get_ports {data_in[7]}]
+set_property PACKAGE_PIN Y13  [get_ports {cam_data[0]}]
+set_property PACKAGE_PIN AB15 [get_ports {cam_data[1]}]
+set_property PACKAGE_PIN Y18  [get_ports {cam_data[2]}]
+set_property PACKAGE_PIN AA16 [get_ports {cam_data[3]}]
+set_property PACKAGE_PIN AA19 [get_ports {cam_data[4]}]
+set_property PACKAGE_PIN AB20 [get_ports {cam_data[5]}]
+set_property PACKAGE_PIN AB21 [get_ports {cam_data[6]}]
+set_property PACKAGE_PIN AA22 [get_ports {cam_data[7]}]
 
 # ---- OV5640 同步/控制 ----
-set_property PACKAGE_PIN AB17 [get_ports href]
-set_property PACKAGE_PIN V14  [get_ports vsync]
-set_property PACKAGE_PIN W13  [get_ports ov5640_rst]  ;# RESET 低有效
-set_property PACKAGE_PIN U22  [get_ports ov5640_pwdn] ;# PWDN 高有效
+set_property PACKAGE_PIN AB17 [get_ports cam_href]
+set_property PACKAGE_PIN V14  [get_ports cam_vsync]
+set_property PACKAGE_PIN W13  [get_ports cam_rst_n]  ;# RESET 低有效
+set_property PACKAGE_PIN U22  [get_ports cam_pwdn] ;# PWDN 高有效
 
 # ---- OV5640 SCCB(I2C) ----
-set_property PACKAGE_PIN Y14  [get_ports scl]
-set_property PACKAGE_PIN W18  [get_ports sda]
+set_property PACKAGE_PIN Y14  [get_ports sccb_scl]
+set_property PACKAGE_PIN W18  [get_ports sccb_sda]
 
-set_property IOSTANDARD LVCMOS33 [get_ports {data_in[*]}]
-set_property IOSTANDARD LVCMOS33 [get_ports href]
-set_property IOSTANDARD LVCMOS33 [get_ports vsync]
-set_property IOSTANDARD LVCMOS33 [get_ports ov5640_rst]
-set_property IOSTANDARD LVCMOS33 [get_ports ov5640_pwdn]
-set_property IOSTANDARD LVCMOS33 [get_ports scl]
-set_property IOSTANDARD LVCMOS33 [get_ports sda]
+set_property IOSTANDARD LVCMOS33 [get_ports {cam_data[*]}]
+set_property IOSTANDARD LVCMOS33 [get_ports cam_href]
+set_property IOSTANDARD LVCMOS33 [get_ports cam_vsync]
+set_property IOSTANDARD LVCMOS33 [get_ports cam_rst_n]
+set_property IOSTANDARD LVCMOS33 [get_ports cam_pwdn]
+set_property IOSTANDARD LVCMOS33 [get_ports sccb_scl]
+set_property IOSTANDARD LVCMOS33 [get_ports sccb_sda]
 
-set_property PULLUP true [get_ports sda]
-set_property PULLUP true [get_ports scl]
+set_property PULLUP true [get_ports sccb_sda]
+set_property PULLUP true [get_ports sccb_scl]
 
 # OV5640 复位后 DVP 引脚是三态的, 配置跑完(~120ms)前这些脚全是浮空的。
 # 浮空脚会被相邻杜邦线串扰打得乱跳 —— PCLK 现在是**时钟**, 噪声会经 BUFG
 # 灌进采集域。加内部下拉让它们在这段窗口里保持确定的低电平。
 # (顶层还有第二道保险: 采集域复位一直拉到 cfg_done 才释放)
 set_property PULLDOWN true [get_ports pclk]
-set_property PULLDOWN true [get_ports href]
-set_property PULLDOWN true [get_ports vsync]
-set_property PULLDOWN true [get_ports {data_in[*]}]
+set_property PULLDOWN true [get_ports cam_href]
+set_property PULLDOWN true [get_ports cam_vsync]
+set_property PULLDOWN true [get_ports {cam_data[*]}]
 
 
 # ============================================================================

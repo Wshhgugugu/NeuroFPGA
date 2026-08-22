@@ -41,45 +41,191 @@ module median_3x3 #(
         .w_valid(wv), .w_pix(wp), .w_row(wr), .w_col(wc), .w_eof(we)
     );
 
-    // sort3: 输出 {min, med, max}
-    function [35:0] sort3(input [11:0] a, input [11:0] b, input [11:0] c);
-        reg [11:0] lo, hi, md;
-        begin
-            if (a > b) begin lo = b; hi = a; end else begin lo = a; hi = b; end
-            if (c < lo) begin md = lo; lo = c; end
-            else if (c > hi) begin md = hi; hi = c; end
-            else md = c;
-            sort3 = {lo, md, hi};
+    // ---- 行 sort3 拆两拍 (每级 1 个 12-bit 比较器 + 选择) ----
+    // Stage 1a: (a>b) 选 lo/hi
+    wire [11:0] a0 = wp[0][0][11:0], b0 = wp[0][1][11:0], c0 = wp[0][2][11:0];
+    wire [11:0] a1 = wp[1][0][11:0], b1 = wp[1][1][11:0], c1 = wp[1][2][11:0];
+    wire [11:0] a2 = wp[2][0][11:0], b2 = wp[2][1][11:0], c2 = wp[2][2][11:0];
+
+    wire sel0 = (a0 > b0), sel1 = (a1 > b1), sel2 = (a2 > b2);
+    wire [11:0] lo01_0 = sel0 ? b0 : a0, hi01_0 = sel0 ? a0 : b0;
+    wire [11:0] lo01_1 = sel1 ? b1 : a1, hi01_1 = sel1 ? a1 : b1;
+    wire [11:0] lo01_2 = sel2 ? b2 : a2, hi01_2 = sel2 ? a2 : b2;
+
+    reg [11:0] lo01_0_r, hi01_0_r, c0_r;
+    reg [11:0] lo01_1_r, hi01_1_r, c1_r;
+    reg [11:0] lo01_2_r, hi01_2_r, c2_r;
+    reg        sv0_r;
+    reg [$clog2(IMG_H)-1:0] wr0_r;
+    reg [$clog2(IMG_W)-1:0] wc0_r;
+    reg        we0_r;
+    reg [1:0]  dir0_r;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            lo01_0_r <= 0; hi01_0_r <= 0; c0_r <= 0;
+            lo01_1_r <= 0; hi01_1_r <= 0; c1_r <= 0;
+            lo01_2_r <= 0; hi01_2_r <= 0; c2_r <= 0;
+            sv0_r <= 0; wr0_r <= 0; wc0_r <= 0; we0_r <= 0; dir0_r <= 0;
+        end else begin
+            lo01_0_r <= lo01_0; hi01_0_r <= hi01_0; c0_r <= c0;
+            lo01_1_r <= lo01_1; hi01_1_r <= hi01_1; c1_r <= c1;
+            lo01_2_r <= lo01_2; hi01_2_r <= hi01_2; c2_r <= c2;
+            sv0_r <= wv; wr0_r <= wr; wc0_r <= wc; we0_r <= we;
+            dir0_r <= wp[1][1][13:12];
         end
-    endfunction
+    end
 
-    // sort3 打包: {lo, md, hi} -> lo=[35:24], md=[23:12], hi=[11:0]
-    wire [35:0] r0 = sort3(wp[0][0][11:0], wp[0][1][11:0], wp[0][2][11:0]);
-    wire [35:0] r1 = sort3(wp[1][0][11:0], wp[1][1][11:0], wp[1][2][11:0]);
-    wire [35:0] r2 = sort3(wp[2][0][11:0], wp[2][1][11:0], wp[2][2][11:0]);
+    // Stage 1b: 定 lo/md/hi (1 级比较 + 打包)
+    wire [11:0] md0 = (c0_r < lo01_0_r) ? lo01_0_r : (c0_r > hi01_0_r) ? hi01_0_r : c0_r;
+    wire [11:0] lo0 = (c0_r < lo01_0_r) ? c0_r : lo01_0_r;
+    wire [11:0] hi0 = (c0_r > hi01_0_r) ? c0_r : hi01_0_r;
+    wire [11:0] md1 = (c1_r < lo01_1_r) ? lo01_1_r : (c1_r > hi01_1_r) ? hi01_1_r : c1_r;
+    wire [11:0] lo1 = (c1_r < lo01_1_r) ? c1_r : lo01_1_r;
+    wire [11:0] hi1 = (c1_r > hi01_1_r) ? c1_r : hi01_1_r;
+    wire [11:0] md2 = (c2_r < lo01_2_r) ? lo01_2_r : (c2_r > hi01_2_r) ? hi01_2_r : c2_r;
+    wire [11:0] lo2 = (c2_r < lo01_2_r) ? c2_r : lo01_2_r;
+    wire [11:0] hi2 = (c2_r > hi01_2_r) ? c2_r : hi01_2_r;
 
-    wire [11:0] max_of_mins = (r0[35:24] > r1[35:24]) ?
-                              ((r0[35:24] > r2[35:24]) ? r0[35:24] : r2[35:24])
-                            : ((r1[35:24] > r2[35:24]) ? r1[35:24] : r2[35:24]);
+    // Stage 1b → Stage 2 寄存器
+    reg [35:0] r0_r, r1_r, r2_r;
+    reg        sv1_r;
+    reg [$clog2(IMG_H)-1:0] wr_r;
+    reg [$clog2(IMG_W)-1:0] wc_r;
+    reg        we_r;
+    reg [1:0]  dir_r;
 
-    wire [11:0] min_of_maxs = (r0[11:0] < r1[11:0]) ?
-                              ((r0[11:0] < r2[11:0]) ? r0[11:0] : r2[11:0])
-                            : ((r1[11:0] < r2[11:0]) ? r1[11:0] : r2[11:0]);
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            r0_r <= 0; r1_r <= 0; r2_r <= 0;
+            sv1_r <= 0; wr_r <= 0; wc_r <= 0; we_r <= 0; dir_r <= 0;
+        end else begin
+            r0_r <= {lo0, md0, hi0};
+            r1_r <= {lo1, md1, hi1};
+            r2_r <= {lo2, md2, hi2};
+            sv1_r <= sv0_r; wr_r <= wr0_r; wc_r <= wc0_r; we_r <= we0_r;
+            dir_r <= dir0_r;
+        end
+    end
 
-    wire [35:0] mm = sort3(r0[23:12], r1[23:12], r2[23:12]); // 行med 的中值
+    // Stage 2a: max_of_mins / min_of_maxs / meds 首级比较 (并行, 各 1 级)
+    wire [11:0] max_of_mins = (r0_r[35:24] > r1_r[35:24]) ?
+                              ((r0_r[35:24] > r2_r[35:24]) ? r0_r[35:24] : r2_r[35:24])
+                            : ((r1_r[35:24] > r2_r[35:24]) ? r1_r[35:24] : r2_r[35:24]);
 
-    wire [35:0] med9 = sort3(max_of_mins, min_of_maxs, mm[23:12]);
-    wire [11:0] median = med9[23:12];
+    wire [11:0] min_of_maxs = (r0_r[11:0] < r1_r[11:0]) ?
+                              ((r0_r[11:0] < r2_r[11:0]) ? r0_r[11:0] : r2_r[11:0])
+                            : ((r1_r[11:0] < r2_r[11:0]) ? r1_r[11:0] : r2_r[11:0]);
 
+    // 行 meds 的 sort3 拆两拍: 首拍 (m0>m1) 选 lo01/hi01 (1 级比较)
+    wire [11:0] m0 = r0_r[23:12];
+    wire [11:0] m1 = r1_r[23:12];
+    wire [11:0] m2 = r2_r[23:12];
+    wire        msel = (m0 > m1);
+    wire [11:0] lo01 = msel ? m1 : m0;
+    wire [11:0] hi01 = msel ? m0 : m1;
+
+    // Stage 2a → Stage 2b 寄存器
+    reg [11:0] mom_r, mmo_r;
+    reg [11:0] lo01_r, hi01_r, m2_r;
+    reg        sv2_r;
+    reg [$clog2(IMG_H)-1:0] wr2_r;
+    reg [$clog2(IMG_W)-1:0] wc2_r;
+    reg        we2_r;
+    reg [1:0]  dir2_r;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            mom_r <= 0; mmo_r <= 0;
+            lo01_r <= 0; hi01_r <= 0; m2_r <= 0;
+            sv2_r <= 0; wr2_r <= 0; wc2_r <= 0; we2_r <= 0; dir2_r <= 0;
+        end else begin
+            mom_r <= max_of_mins; mmo_r <= min_of_maxs;
+            lo01_r <= lo01; hi01_r <= hi01; m2_r <= m2;
+            sv2_r <= sv1_r; wr2_r <= wr_r; wc2_r <= wc_r; we2_r <= we_r;
+            dir2_r <= dir_r;
+        end
+    end
+
+    // Stage 2b: 行 meds 中值 (1 级比较)
+    wire [11:0] med_row = (m2_r < lo01_r) ? lo01_r :
+                          (m2_r > hi01_r) ? hi01_r : m2_r;
+
+    // Stage 2b → Stage 3 寄存器
+    reg [11:0] mom2_r, mmo2_r, med_row_r;
+    reg        sv3_r;
+    reg [$clog2(IMG_H)-1:0] wr3_r;
+    reg [$clog2(IMG_W)-1:0] wc3_r;
+    reg        we3_r;
+    reg [1:0]  dir3_r;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            mom2_r <= 0; mmo2_r <= 0; med_row_r <= 0;
+            sv3_r <= 0; wr3_r <= 0; wc3_r <= 0; we3_r <= 0; dir3_r <= 0;
+        end else begin
+            mom2_r <= mom_r; mmo2_r <= mmo_r; med_row_r <= med_row;
+            sv3_r <= sv2_r; wr3_r <= wr2_r; wc3_r <= wc2_r; we3_r <= we2_r;
+            dir3_r <= dir2_r;
+        end
+    end
+
+    // Stage 3a: final sort3 首拍 (mom2 vs mmo2 选 lo01/hi01)
+    wire        fsel = (mom2_r > mmo2_r);
+    wire [11:0] flo = fsel ? mmo2_r : mom2_r;
+    wire [11:0] fhi = fsel ? mom2_r : mmo2_r;
+
+    reg [11:0] flo_r, fhi_r, fmd_r;
+    reg        sv4_r;
+    reg [$clog2(IMG_H)-1:0] wr4_r;
+    reg [$clog2(IMG_W)-1:0] wc4_r;
+    reg        we4_r;
+    reg [1:0]  dir4_r;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            flo_r <= 0; fhi_r <= 0; fmd_r <= 0;
+            sv4_r <= 0; wr4_r <= 0; wc4_r <= 0; we4_r <= 0; dir4_r <= 0;
+        end else begin
+            flo_r <= flo; fhi_r <= fhi; fmd_r <= med_row_r;
+            sv4_r <= sv3_r; wr4_r <= wr3_r; wc4_r <= wc3_r; we4_r <= we3_r;
+            dir4_r <= dir3_r;
+        end
+    end
+
+    // Stage 3b: 定 lo/md/hi (1 级比较) -> med9_r
+    wire [11:0] fmd = (fmd_r < flo_r) ? flo_r : (fmd_r > fhi_r) ? fhi_r : fmd_r;
+    wire [11:0] flo_f = (fmd_r < flo_r) ? fmd_r : flo_r;
+    wire [11:0] fhi_f = (fmd_r > fhi_r) ? fmd_r : fhi_r;
+
+    reg [35:0] med9_r;
+    reg        sv5_r;
+    reg [$clog2(IMG_H)-1:0] wr5_r;
+    reg [$clog2(IMG_W)-1:0] wc5_r;
+    reg        we5_r;
+    reg [1:0]  dir5_r;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            med9_r <= 0;
+            sv5_r <= 0; wr5_r <= 0; wc5_r <= 0; we5_r <= 0; dir5_r <= 0;
+        end else begin
+            med9_r <= {flo_f, fmd, fhi_f};
+            sv5_r <= sv4_r; wr5_r <= wr4_r; wc5_r <= wc4_r; we5_r <= we4_r;
+            dir5_r <= dir4_r;
+        end
+    end
+
+    // Stage 4: 输出
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             m_valid <= 0; m_data <= 0; m_sof <= 0; m_eol <= 0; m_eof <= 0;
         end else begin
-            m_valid <= wv;
-            m_data  <= {wp[1][1][13:12], median};
-            m_sof   <= wv && (wr == 0) && (wc == 0);
-            m_eol   <= wv && (wc == IMG_W - 1);
-            m_eof   <= wv && we;
+            m_valid <= sv5_r;
+            m_data  <= {dir5_r, med9_r[23:12]};
+            m_sof   <= sv5_r && (wr5_r == 0) && (wc5_r == 0);
+            m_eol   <= sv5_r && (wc5_r == IMG_W - 1);
+            m_eof   <= sv5_r && we5_r;
         end
     end
 

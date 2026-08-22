@@ -158,9 +158,9 @@ module tb_canny;
                              dut.u_med.u_win.w_pix[0][0][11:0], dut.u_med.u_win.w_pix[0][1][11:0], dut.u_med.u_win.w_pix[0][2][11:0],
                              dut.u_med.u_win.w_pix[1][0][11:0], dut.u_med.u_win.w_pix[1][1][11:0], dut.u_med.u_win.w_pix[1][2][11:0],
                              dut.u_med.u_win.w_pix[2][0][11:0], dut.u_med.u_win.w_pix[2][1][11:0], dut.u_med.u_win.w_pix[2][2][11:0]);
-                    $display("  r0=%h r1=%h r2=%h maxmin=%h minmax=%h mm=%h",
-                             dut.u_med.r0, dut.u_med.r1, dut.u_med.r2,
-                             dut.u_med.max_of_mins, dut.u_med.min_of_maxs, dut.u_med.mm);
+                    $display("  r0=%h r1=%h r2=%h maxmin=%h minmax=%h medrow=%h",
+                             dut.u_med.r0_r, dut.u_med.r1_r, dut.u_med.r2_r,
+                             dut.u_med.max_of_mins, dut.u_med.min_of_maxs, dut.u_med.med_row);
                 end
             end
             c4=c4+1;

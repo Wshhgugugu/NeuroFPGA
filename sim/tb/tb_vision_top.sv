@@ -59,12 +59,12 @@ module tb_vision_top;
     end
 
     integer dtn=0;
-    always @(posedge sys_clk) if (dut.u_canny.dt_v && dtn<8) begin
-        $display("[dt %0d] cls=%0d", dtn, dut.u_canny.dt_cls); dtn=dtn+1;
+    always @(posedge sys_clk) if (dut.g_chan[0].u_canny.dt_v && dtn<8) begin
+        $display("[dt %0d] cls=%0d", dtn, dut.g_chan[0].u_canny.dt_cls); dtn=dtn+1;
     end
-    always @(posedge sys_clk) if (dut.u_canny.dt_sof) $display("[dt SOF@%0t]", $time);
-    always @(posedge sys_clk) if (dut.u_canny.dt_eof) $display("[dt EOF@%0t capaddr=%0d]",
-        $time, dut.u_canny.u_hyst.cap_addr);
+    always @(posedge sys_clk) if (dut.g_chan[0].u_canny.dt_sof) $display("[dt SOF@%0t]", $time);
+    always @(posedge sys_clk) if (dut.g_chan[0].u_canny.dt_eof) $display("[dt EOF@%0t capaddr=%0d]",
+        $time, dut.g_chan[0].u_canny.u_hyst.cap_addr);
 
     initial begin
         wait(rst_n); wait(sim_e_eof);

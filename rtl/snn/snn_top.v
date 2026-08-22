@@ -63,7 +63,7 @@ module snn_top #(
     // ---- 神经元阵列 ----
     wire [NNEU-1:0] neu_spike;
     reg  signed [15:0] i_raw_bcast;
-    reg  [NNEU-1:0] neu_step, neu_step_d;
+    reg  [NNEU-1:0] neu_step;
 
     genvar g;
     generate
@@ -75,9 +75,16 @@ module snn_top #(
         end
     endgenerate
 
+    // step 流水延迟 3 拍对齐 LIF 3 级流水 (spike 在 step+3 拍有效: step→A→B→C 提交)
+    reg [NNEU-1:0] neu_step_d1, neu_step_d2, neu_step_d;
     always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) neu_step_d <= 0;
-        else        neu_step_d <= neu_step;
+        if (!rst_n) begin
+            neu_step_d1 <= 0; neu_step_d2 <= 0; neu_step_d <= 0;
+        end else begin
+            neu_step_d1 <= neu_step;
+            neu_step_d2 <= neu_step_d1;
+            neu_step_d  <= neu_step_d2;
+        end
     end
 
     // 尖峰计数 (spike 在 step 后一拍有效)

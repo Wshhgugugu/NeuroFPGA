@@ -1,0 +1,91 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
+| Date         : Sat Aug 22 07:07:41 2026
+| Host         : wshh running 64-bit major release  (build 9200)
+| Command      : report_utilization -hierarchical -file out/util_sweet_h2.rpt
+| Design       : vision_top
+| Device       : xc7z020clg484-1
+| Speed File   : -1
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++---------------------------+-------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+|          Instance         |             Module            | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++---------------------------+-------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+| vision_top                |                         (top) |      10777 |       7799 |    2928 |   50 | 8665 |     40 |      2 |          7 |
+|   (vision_top)            |                         (top) |         16 |         16 |       0 |    0 |  161 |      0 |      0 |          0 |
+|   g_chan[0].u_canny       |                     canny_top |       3264 |       2159 |    1080 |   25 | 2762 |     20 |      0 |          3 |
+|     (g_chan[0].u_canny)   |                     canny_top |        600 |          0 |     600 |    0 |    0 |      0 |      0 |          0 |
+|     u_gauss               |                gaussian_5x5_6 |        711 |        710 |       0 |    1 |  974 |      0 |      0 |          0 |
+|       (u_gauss)           |                gaussian_5x5_6 |        214 |        213 |       0 |    1 |  341 |      0 |      0 |          0 |
+|       u_win               |                 window_kxk_16 |        497 |        497 |       0 |    0 |  633 |      0 |      0 |          0 |
+|     u_hyst                |                  hysteresis_7 |        266 |        226 |      40 |    0 |  160 |     20 |      0 |          0 |
+|       (u_hyst)            |                  hysteresis_7 |        121 |        121 |       0 |    0 |  104 |     20 |      0 |          0 |
+|       u_win               | window_kxk__parameterized2_15 |        145 |        105 |      40 |    0 |   56 |      0 |      0 |          0 |
+|     u_mag                 |            gradient_mag_dir_8 |         80 |         78 |       0 |    2 |   58 |      0 |      0 |          3 |
+|     u_med                 |                  median_3x3_9 |        531 |        509 |       0 |   22 |  784 |      0 |      0 |          0 |
+|       (u_med)             |                  median_3x3_9 |        272 |        250 |       0 |   22 |  418 |      0 |      0 |          0 |
+|       u_win               | window_kxk__parameterized1_14 |        259 |        259 |       0 |    0 |  366 |      0 |      0 |          0 |
+|     u_nms                 |                        nms_10 |        542 |        262 |     280 |    0 |  384 |      0 |      0 |          0 |
+|       u_win               | window_kxk__parameterized1_13 |        529 |        249 |     280 |    0 |  369 |      0 |      0 |          0 |
+|     u_scharr              |                 scharr_3x3_11 |        532 |        372 |     160 |    0 |  397 |      0 |      0 |          0 |
+|       (u_scharr)          |                 scharr_3x3_11 |         82 |         82 |       0 |    0 |  157 |      0 |      0 |          0 |
+|       u_win               | window_kxk__parameterized0_12 |        450 |        290 |     160 |    0 |  240 |      0 |      0 |          0 |
+|   g_chan[0].u_cdc         |                    fifo_async |        524 |        140 |     384 |    0 |   95 |      0 |      0 |          0 |
+|   g_chan[1].u_canny       |                   canny_top_0 |       3283 |       2178 |    1080 |   25 | 2758 |     20 |      0 |          3 |
+|     (g_chan[1].u_canny)   |                   canny_top_0 |        600 |          0 |     600 |    0 |    0 |      0 |      0 |          0 |
+|     u_gauss               |                  gaussian_5x5 |        711 |        710 |       0 |    1 |  971 |      0 |      0 |          0 |
+|       (u_gauss)           |                  gaussian_5x5 |        214 |        213 |       0 |    1 |  341 |      0 |      0 |          0 |
+|       u_win               |                    window_kxk |        497 |        497 |       0 |    0 |  630 |      0 |      0 |          0 |
+|     u_hyst                |                    hysteresis |        273 |        233 |      40 |    0 |  157 |     20 |      0 |          0 |
+|       (u_hyst)            |                    hysteresis |        126 |        126 |       0 |    0 |  101 |     20 |      0 |          0 |
+|       u_win               |    window_kxk__parameterized2 |        147 |        107 |      40 |    0 |   56 |      0 |      0 |          0 |
+|     u_mag                 |              gradient_mag_dir |         80 |         78 |       0 |    2 |   58 |      0 |      0 |          3 |
+|     u_med                 |                    median_3x3 |        536 |        514 |       0 |   22 |  784 |      0 |      0 |          0 |
+|       (u_med)             |                    median_3x3 |        272 |        250 |       0 |   22 |  418 |      0 |      0 |          0 |
+|       u_win               |  window_kxk__parameterized1_4 |        264 |        264 |       0 |    0 |  366 |      0 |      0 |          0 |
+|     u_nms                 |                           nms |        544 |        264 |     280 |    0 |  386 |      0 |      0 |          0 |
+|       u_win               |    window_kxk__parameterized1 |        531 |        251 |     280 |    0 |  371 |      0 |      0 |          0 |
+|     u_scharr              |                    scharr_3x3 |        538 |        378 |     160 |    0 |  397 |      0 |      0 |          0 |
+|       (u_scharr)          |                    scharr_3x3 |         82 |         82 |       0 |    0 |  157 |      0 |      0 |          0 |
+|       u_win               |    window_kxk__parameterized0 |        456 |        296 |     160 |    0 |  240 |      0 |      0 |          0 |
+|   g_chan[1].u_cdc         |                  fifo_async_1 |        529 |        145 |     384 |    0 |   95 |      0 |      0 |          0 |
+|   g_mcu_ctrl.u_mcu8       |                          mcu8 |        249 |        249 |       0 |    0 |  119 |      0 |      1 |          0 |
+|   g_mcu_ctrl.u_mcu_bridge |                axi_mcu_bridge |         57 |         57 |       0 |    0 |  217 |      0 |      0 |          0 |
+|   u_cam                   |                   ov5640_ctrl |        280 |        280 |       0 |    0 |  182 |      0 |      0 |          1 |
+|     (u_cam)               |                   ov5640_ctrl |        207 |        207 |       0 |    0 |  125 |      0 |      0 |          1 |
+|     u_sccb                |                   sccb_master |         73 |         73 |       0 |    0 |   57 |      0 |      0 |          0 |
+|   u_regs                  |             axi_crossbar_wrap |          4 |          4 |       0 |    0 |   66 |      0 |      0 |          0 |
+|   u_snn                   |                       snn_top |       2541 |       2541 |       0 |    0 | 2180 |      0 |      1 |          0 |
+|     (u_snn)               |                       snn_top |        188 |        188 |       0 |    0 |  764 |      0 |      0 |          0 |
+|     g_neu[0].u_lif        |                    lif_neuron |        127 |        127 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[10].u_lif       |                 lif_neuron_17 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[11].u_lif       |                 lif_neuron_18 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[12].u_lif       |                 lif_neuron_19 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[13].u_lif       |                 lif_neuron_20 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[14].u_lif       |                 lif_neuron_21 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[15].u_lif       |                 lif_neuron_22 |        136 |        136 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[1].u_lif        |                 lif_neuron_23 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[2].u_lif        |                 lif_neuron_24 |        127 |        127 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[3].u_lif        |                 lif_neuron_25 |        127 |        127 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[4].u_lif        |                 lif_neuron_26 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[5].u_lif        |                 lif_neuron_27 |        127 |        127 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[6].u_lif        |                 lif_neuron_28 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[7].u_lif        |                 lif_neuron_29 |        127 |        127 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[8].u_lif        |                 lif_neuron_30 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     g_neu[9].u_lif        |                 lif_neuron_31 |        128 |        128 |       0 |    0 |   84 |      0 |      0 |          0 |
+|     u_enc                 |                 spike_encoder |        310 |        310 |       0 |    0 |   72 |      0 |      0 |          0 |
++---------------------------+-------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

@@ -16,13 +16,18 @@ module vision_top #(
     parameter integer IMG_H    = 480,
     parameter integer MAX_PASS = 64,
     parameter integer NNEU     = 16,
+    parameter integer NCHAN    = 1,      // 并行处理核数 (每路独立 Canny 流水线)
+    // MMCM: proc = 50MHz * MULT / DIV0 (180MHz=22.5/6.25; 165MHz=19.8/6)
+    parameter real    CLK_MULT  = 22.5,
+    parameter real    CLK_DIV0  = 6.25,
+    parameter integer CLK_DIV1  = 15,      // pix = VCO/CLK_DIV1 (75MHz@VCO1125)
     parameter         SOFT_CTRL = 1     // 1=软控制面 (无需 VexRiscv 网表)
 )(
     // 板载时钟/复位
     input  wire sys_clk,        // 50MHz
     input  wire rst_n_btn,      // 按键 (低有效)
 
-    // OV5640 DVP
+    // OV5640 DVP (通道 0; 多通道时其余通道经 sim 旁路注入)
     input  wire pclk,           // 摄像头像素时钟 (时钟专用脚 W17)
     input  wire cam_href,
     input  wire cam_vsync,
@@ -43,13 +48,13 @@ module vision_top #(
     // 状态 LED
     output wire [1:0] led,
 
-    // 仿真用: 灰度输入流入口 (pclk 域旁路, 综合时置 0)
-    input  wire sim_s_valid = 1'b0,
-    input  wire sim_s_sof   = 1'b0,
-    input  wire [7:0] sim_s_data = 8'd0,
-    output wire sim_e_valid,
-    output wire sim_e_edge,
-    output wire sim_e_eof
+    // 仿真用: 灰度输入流入口 (每通道独立; 通道 0 与 DVP 并联, 综合时置 0)
+    input  wire [NCHAN-1:0]     sim_s_valid,
+    input  wire [NCHAN-1:0]     sim_s_sof,
+    input  wire [NCHAN*8-1:0]   sim_s_data,
+    output wire [NCHAN-1:0]     sim_e_valid,
+    output wire [NCHAN-1:0]     sim_e_edge,
+    output wire [NCHAN-1:0]     sim_e_eof
 );
 
     // ------------------------------------------------------------------
@@ -68,12 +73,38 @@ module vision_top #(
     wire clk_cfg  = sys_clk;
     wire mmcm_lock = 1'b1;
 `else
-    // MMCM: 50MHz in -> 150MHz (proc), 74.25MHz (pix) — 板级实现
+    // MMCME2_BASE: 50MHz -> VCO(50*CLK_MULT) -> proc(VCO/CLK_DIV0) / 75MHz pix
+    // (默认 180MHz: VCO 1125 = 50*22.5, /6.25; 4 核布局拥挤时 165MHz: 19.8/6)
     wire mmcm_lock;
     wire clk_proc, clk_pix;
-    clk_wiz_vision u_mmcm (
-        .clk_in1(sys_clk), .clk_out1(clk_proc), .clk_out2(clk_pix),
-        .locked(mmcm_lock)
+    wire clk_mmcm_fb;
+
+    MMCME2_BASE #(
+        .BANDWIDTH         ("OPTIMIZED"),
+        .CLKFBOUT_MULT_F   (CLK_MULT),     // VCO = 50 * CLK_MULT
+        .CLKFBOUT_PHASE    (0.0),
+        .CLKIN1_PERIOD      (20.0),    // 50MHz
+        .CLKOUT0_DIVIDE_F   (CLK_DIV0),    // proc 时钟
+        .CLKOUT0_DUTY_CYCLE (0.5),
+        .CLKOUT0_PHASE      (0.0),
+        .CLKOUT1_DIVIDE     (CLK_DIV1),    // pix 时钟
+        .CLKOUT1_DUTY_CYCLE (0.5),
+        .CLKOUT1_PHASE      (0.0),
+        .CLKOUT2_DIVIDE     (1),
+        .CLKOUT3_DIVIDE     (1),
+        .CLKOUT4_DIVIDE     (1),
+        .CLKOUT5_DIVIDE     (1),
+        .CLKOUT6_DIVIDE     (1),
+        .DIVCLK_DIVIDE      (1),
+        .REF_JITTER1        (0.010),
+        .STARTUP_WAIT       ("FALSE")
+    ) u_mmcm (
+        .CLKOUT0  (clk_proc),
+        .CLKOUT1  (clk_pix),
+        .CLKOUT2  (), .CLKOUT3  (), .CLKOUT4  (), .CLKOUT5  (), .CLKOUT6  (),
+.CLKFBOUT (clk_mmcm_fb), .CLKFBIN  (clk_mmcm_fb),
+        .CLKIN1   (sys_clk), .LOCKED (mmcm_lock), .PWRDWN (1'b0),
+        .RST      (~rst_n_btn)
     );
     wire clk_cfg = sys_clk;
 `endif
@@ -106,61 +137,100 @@ module vision_top #(
         .m_axis_tlast(px_last), .m_axis_tuser(px_user), .m_axis_tready(1'b1)
     );
 
-    // 仿真旁路
-    wire eff_v = sim_s_valid | px_v;
-    wire [7:0] eff_d = sim_s_valid ? sim_s_data : px_d;
-
     // ------------------------------------------------------------------
-    // CDC: pclk -> proc (fifo_async, 计划 CDC 矩阵)
+    // NCHAN 路并行处理链: [采集旁路] -> CDC FIFO -> 读侧 -> canny_top
+    // 通道 0 复用 ov5640_ctrl 输出 (DVP 实采集), 其余通道纯 sim 注入
     // ------------------------------------------------------------------
-    wire fifo_full, fifo_empty;
-    wire [7:0] fifo_rdata;
-    reg  rd_gap;                     // 前置声明 (实例端口引用)
-    wire do_rd = !rd_gap && !fifo_empty;
+    // 配置跨域寄存器 (声明前置: generate 内引用须在声明后)
+    reg [11:0] th_hi_p1, th_hi_p2, th_lo_p1, th_lo_p2;
 
-    fifo_async #(.DW(8), .AW(11)) u_cdc_px (
-        .wclk(pclk), .wr_rst_n(rst_n_cfg_raw && cfg_done),
-        .wr_en(eff_v), .wdata(eff_d),
-        .full(fifo_full), .prog_full(),
-        .rclk(clk_proc), .rd_rst_n(rst_n_proc),
-        .rd_en(do_rd), .rdata(fifo_rdata), .empty(fifo_empty)
-    );
+    wire [NCHAN-1:0] e_valid_v, e_edge_v, e_sof_v, e_eol_v, e_eof_v;
+    wire [NCHAN-1:0] canny_busy_v;
 
-    // 读侧: 空即停; 输出行间隙契约 (每 W 像素后强制 >=4 空拍)
-    reg [10:0] rd_cnt;
-    reg        rd_sof_pending;
-    reg        s_valid_p;
-    reg [7:0]  s_data_p;
+    genvar gc;
+    generate
+        for (gc = 0; gc < NCHAN; gc = gc + 1) begin : g_chan
+            localparam integer CHW = IMG_W;
+            localparam integer CHH = IMG_H;
 
-    reg [2:0] gap_cnt;
-    reg       s_sof_p;
-    always @(posedge clk_proc or negedge rst_n_proc) begin
-        if (!rst_n_proc) begin
-            rd_cnt <= 0; rd_gap <= 0; rd_sof_pending <= 1;
-            s_valid_p <= 0; s_data_p <= 0; gap_cnt <= 0; s_sof_p <= 0;
-        end else begin
-            s_valid_p <= 1'b0;
-            s_sof_p   <= 1'b0;
-            if (do_rd) begin
-                s_valid_p <= 1'b1;
-                s_data_p  <= fifo_rdata;
-                s_sof_p   <= rd_sof_pending;
-                rd_sof_pending <= 0;
-                if (rd_cnt == IMG_W-1) begin
-                    rd_cnt <= 0;
-                    rd_gap <= 1'b1;      // 行尾: 进 >=4 拍间隙 (窗口契约)
-                    gap_cnt <= 0;
-                end else
-                    rd_cnt <= rd_cnt + 1'b1;
-            end else if (rd_gap) begin
-                if (gap_cnt == 3) rd_gap <= 0;
-                else              gap_cnt <= gap_cnt + 1'b1;
+            // 采集旁路: 通道 0 与 DVP 并联
+            wire [7:0] ch_eff_d = sim_s_valid[gc] ? sim_s_data[gc*8 +: 8]
+                                                  : ((gc == 0) ? px_d : 8'd0);
+            wire       ch_eff_v = sim_s_valid[gc] | ((gc == 0) ? px_v : 1'b0);
+
+            // CDC: pclk -> proc
+            wire ch_fifo_full, ch_fifo_empty;
+            wire [7:0] ch_fifo_rdata;
+            reg  ch_rd_gap;
+            wire ch_do_rd = !ch_rd_gap && !ch_fifo_empty;
+
+            fifo_async #(.DW(8), .AW(11)) u_cdc (
+                .wclk(pclk), .wr_rst_n(rst_n_cfg_raw && cfg_done),
+                .wr_en(ch_eff_v), .wdata(ch_eff_d),
+                .full(ch_fifo_full), .prog_full(),
+                .rclk(clk_proc), .rd_rst_n(rst_n_proc),
+                .rd_en(ch_do_rd), .rdata(ch_fifo_rdata), .empty(ch_fifo_empty)
+            );
+
+            // 读侧: 空即停; 每 W 像素后强制 >=4 拍间隙 (窗口契约)
+            reg [10:0] ch_rd_cnt;
+            reg        ch_rd_sof_pending;
+            reg        ch_s_valid_p;
+            reg [7:0]  ch_s_data_p;
+            reg [2:0]  ch_gap_cnt;
+            reg        ch_s_sof_p;
+
+            always @(posedge clk_proc or negedge rst_n_proc) begin
+                if (!rst_n_proc) begin
+                    ch_rd_cnt <= 0; ch_rd_gap <= 0; ch_rd_sof_pending <= 1;
+                    ch_s_valid_p <= 0; ch_s_data_p <= 0;
+                    ch_gap_cnt <= 0; ch_s_sof_p <= 0;
+                end else begin
+                    ch_s_valid_p <= 1'b0;
+                    ch_s_sof_p   <= 1'b0;
+                    if (ch_do_rd) begin
+                        ch_s_valid_p <= 1'b1;
+                        ch_s_data_p  <= ch_fifo_rdata;
+                        ch_s_sof_p   <= ch_rd_sof_pending;
+                        ch_rd_sof_pending <= 0;
+                        if (ch_rd_cnt == IMG_W-1) begin
+                            ch_rd_cnt <= 0;
+                            ch_rd_gap <= 1'b1;      // 行尾: 进 >=4 拍间隙
+                            ch_gap_cnt <= 0;
+                        end else
+                            ch_rd_cnt <= ch_rd_cnt + 1'b1;
+                    end else if (ch_rd_gap) begin
+                        if (ch_gap_cnt == 3) ch_rd_gap <= 0;
+                        else                 ch_gap_cnt <= ch_gap_cnt + 1'b1;
+                    end
+                end
             end
+
+            // Canny 流水线 (proc 域)
+            canny_top #(.IMG_W(IMG_W), .IMG_H(IMG_H), .MAX_PASS(MAX_PASS)) u_canny (
+                .clk(clk_proc), .rst_n(rst_n_proc),
+                .s_valid(ch_s_valid_p), .s_sof(ch_s_sof_p), .s_data(ch_s_data_p),
+                .s_eol(1'b0), .s_eof(1'b0),
+                .th_hi(th_hi_p2), .th_lo(th_lo_p2),
+                .m_valid(e_valid_v[gc]), .m_edge(e_edge_v[gc]), .m_sof(e_sof_v[gc]),
+                .m_eol(e_eol_v[gc]), .m_eof(e_eof_v[gc]),
+                .busy(canny_busy_v[gc])
+            );
         end
-    end
+    endgenerate
+
+    wire e_valid = e_valid_v[0];    // SNN/显示/状态取通道 0 (多核聚合为扩展点)
+    wire e_edge  = e_edge_v[0];
+    wire e_sof   = e_sof_v[0];
+    wire e_eol   = e_eol_v[0];
+    wire e_eof   = e_eof_v[0];
+    wire canny_busy = |canny_busy_v;
 
     // ------------------------------------------------------------------
-    // 控制面 (cfg 域)
+    // 控制面 (cfg 域) — AXI 主选择:
+    //   SOFT_CTRL=1: vexriscv_wrapper 内置 FSM
+    //   SOFT_CTRL=2: mcu8 自研 8 位 CPU (自适应阈值闭环, 见 mem/prog_adaptive.asm)
+    //   SOFT_CTRL=0: 预留 VexRiscv 网表
     // ------------------------------------------------------------------
     wire        m_awvalid, m_awready, m_wvalid, m_wready, m_bvalid, m_bready;
     wire [11:0] m_awaddr;
@@ -169,23 +239,86 @@ module vision_top #(
     wire [11:0] m_araddr;
     wire [31:0] m_rdata;
 
-    vexriscv_wrapper #(.SOFT_CTRL(SOFT_CTRL)) u_cpu (
-        .clk(clk_cfg), .rst_n(rst_n_cfg_raw),
-        .m_awvalid(m_awvalid), .m_awaddr(m_awaddr), .m_awready(m_awready),
-        .m_wvalid(m_wvalid), .m_wdata(m_wdata), .m_wready(m_wready),
-        .m_bvalid(m_bvalid), .m_bready(m_bready),
-        .m_arvalid(m_arvalid), .m_araddr(m_araddr), .m_arready(m_arready),
-        .m_rvalid(m_rvalid), .m_rdata(m_rdata), .m_rready(m_rready)
-    );
+    // wrapper 主 (SOFT_CTRL=1)
+    wire        fw_awvalid, fw_awready, fw_wvalid, fw_wready, fw_bvalid, fw_bready;
+    wire [11:0] fw_awaddr;
+    wire [31:0] fw_wdata;
+    wire        fw_arvalid, fw_arready, fw_rvalid, fw_rready;
+    wire [11:0] fw_araddr;
+    wire [31:0] fw_rdata;
 
+    // MCU 主 (SOFT_CTRL=2)
+    wire        mu_awvalid, mu_awready, mu_wvalid, mu_wready, mu_bvalid, mu_bready;
+    wire [11:0] mu_awaddr;
+    wire [31:0] mu_wdata;
+    wire        mu_arvalid, mu_arready, mu_rvalid, mu_rready;
+    wire [11:0] mu_araddr;
+    wire [31:0] mu_rdata;
+
+    wire [7:0]  mcu_port_addr, mcu_port_out, mcu_port_in;
+    wire        mcu_port_wr, mcu_port_rd;
+
+    // 桥的状态输入 (proc 域, 桥内部 2FF 同步)
+    wire snn_busy, snn_done;
     wire [1:0]  mode_raw;
     wire [11:0] th_hi, th_lo;
     wire signed [23:0] snn_vth;
     wire snn_act_wr, snn_run_start;
     wire [5:0] snn_act_idx;
     wire [7:0] snn_act_wdata;
-    wire canny_busy, snn_busy, snn_done;
-    wire [7:0] snn_cnt [0:NNEU-1];
+    (* keep = "true" *) wire [7:0] snn_cnt [0:NNEU-1];
+
+    generate
+        if (SOFT_CTRL == 2) begin : g_mcu_ctrl
+            mcu8 #(.PROG("mem/prog_adaptive.hex")) u_mcu8 (
+                .clk(clk_cfg), .rst_n(rst_n_cfg_raw),
+                .port_addr(mcu_port_addr), .port_out(mcu_port_out),
+                .port_in(mcu_port_in), .port_wr(mcu_port_wr), .port_rd(mcu_port_rd),
+                .halted(), .active()
+            );
+            axi_mcu_bridge u_mcu_bridge (
+                .clk(clk_cfg), .rst_n(rst_n_cfg_raw),
+                .port_addr(mcu_port_addr), .port_out(mcu_port_out),
+                .port_wr(mcu_port_wr), .port_in(mcu_port_in),
+                .m_awvalid(mu_awvalid), .m_awaddr(mu_awaddr), .m_awready(mu_awready),
+                .m_wvalid(mu_wvalid), .m_wdata(mu_wdata), .m_wready(mu_wready),
+                .m_bvalid(mu_bvalid), .m_bready(mu_bready),
+                .m_arvalid(mu_arvalid), .m_araddr(mu_araddr), .m_arready(mu_arready),
+                .m_rvalid(mu_rvalid), .m_rdata(mu_rdata), .m_rready(mu_rready),
+                .id_ok(id_ok), .cfg_done(cfg_done), .snn_done(snn_done),
+                .snn_busy(snn_busy), .canny_busy(canny_busy)
+            );
+        end
+    endgenerate
+
+    vexriscv_wrapper #(.SOFT_CTRL(SOFT_CTRL)) u_cpu (
+        .clk(clk_cfg), .rst_n(rst_n_cfg_raw),
+        .m_awvalid(fw_awvalid), .m_awaddr(fw_awaddr), .m_awready(fw_awready),
+        .m_wvalid(fw_wvalid), .m_wdata(fw_wdata), .m_wready(fw_wready),
+        .m_bvalid(fw_bvalid), .m_bready(fw_bready),
+        .m_arvalid(fw_arvalid), .m_araddr(fw_araddr), .m_arready(fw_arready),
+        .m_rvalid(fw_rvalid), .m_rdata(fw_rdata), .m_rready(fw_rready)
+    );
+
+    // AXI 主 mux (常量选择, 综合期折叠)
+    assign m_awvalid = (SOFT_CTRL == 2) ? mu_awvalid : fw_awvalid;
+    assign m_awaddr  = (SOFT_CTRL == 2) ? mu_awaddr  : fw_awaddr;
+    assign m_wvalid  = (SOFT_CTRL == 2) ? mu_wvalid  : fw_wvalid;
+    assign m_wdata   = (SOFT_CTRL == 2) ? mu_wdata   : fw_wdata;
+    assign m_bready  = (SOFT_CTRL == 2) ? mu_bready  : fw_bready;
+    assign m_arvalid = (SOFT_CTRL == 2) ? mu_arvalid : fw_arvalid;
+    assign m_araddr  = (SOFT_CTRL == 2) ? mu_araddr  : fw_araddr;
+    assign m_rready  = (SOFT_CTRL == 2) ? mu_rready  : fw_rready;
+    assign fw_awready = (SOFT_CTRL == 2) ? 1'b1 : m_awready;
+    assign fw_wready  = (SOFT_CTRL == 2) ? 1'b1 : m_wready;
+    assign fw_bvalid  = (SOFT_CTRL == 2) ? 1'b0 : m_bvalid;
+    assign fw_arready = (SOFT_CTRL == 2) ? 1'b1 : m_arready;
+    assign fw_rvalid  = (SOFT_CTRL == 2) ? 1'b0 : m_rvalid;
+    assign mu_awready = (SOFT_CTRL == 2) ? m_awready : 1'b1;
+    assign mu_wready  = (SOFT_CTRL == 2) ? m_wready  : 1'b1;
+    assign mu_bvalid  = (SOFT_CTRL == 2) ? m_bvalid  : 1'b0;
+    assign mu_arready = (SOFT_CTRL == 2) ? m_arready : 1'b1;
+    assign mu_rvalid  = (SOFT_CTRL == 2) ? m_rvalid  : 1'b0;
 
     axi_crossbar_wrap #(.NNEU(NNEU)) u_regs (
         .clk(clk_cfg), .rst_n(rst_n_cfg_raw),
@@ -202,7 +335,6 @@ module vision_top #(
     );
 
     // 配置跨域: cfg -> proc (值稳定型, 两拍)
-    reg [11:0] th_hi_p1, th_hi_p2, th_lo_p1, th_lo_p2;
     always @(posedge clk_proc or negedge rst_n_proc) begin
         if (!rst_n_proc) begin th_hi_p1 <= 12'd600; th_hi_p2 <= 12'd600;
                               th_lo_p1 <= 12'd200; th_lo_p2 <= 12'd200; end
@@ -211,22 +343,8 @@ module vision_top #(
     end
 
     // ------------------------------------------------------------------
-    // Canny (proc 域)
-    // ------------------------------------------------------------------
-    wire e_valid, e_edge, e_sof, e_eol, e_eof;
-
-    canny_top #(.IMG_W(IMG_W), .IMG_H(IMG_H), .MAX_PASS(MAX_PASS)) u_canny (
-        .clk(clk_proc), .rst_n(rst_n_proc),
-        .s_valid(s_valid_p), .s_sof(s_sof_p), .s_data(s_data_p),
-        .s_eol(1'b0), .s_eof(1'b0),
-        .th_hi(th_hi_p2), .th_lo(th_lo_p2),
-        .m_valid(e_valid), .m_edge(e_edge), .m_sof(e_sof),
-        .m_eol(e_eol), .m_eof(e_eof),
-        .busy(canny_busy)
-    );
-
-    // ------------------------------------------------------------------
-    // SNN (proc 域): 边缘活动 8x8 池化 (bin = (y/PH)*8 + x/PW) -> act[64]
+    // SNN (proc 域): 通道 0 边缘活动 8x8 池化 -> act[64]
+    // (多核聚合: 各通道独立活动表为扩展点, 当前取通道 0)
     // ------------------------------------------------------------------
     reg [9:0]  ep_x, ep_y;
     reg        ep_frame_done;
@@ -295,7 +413,9 @@ module vision_top #(
     // 帧完 + SNN 空闲 -> 自动用本帧活动启动 (演示路径)
     wire snn_run_auto = ep_frame_done && !snn_busy && !snn_run_p;
 
-    snn_top #(.NIN(64), .NNEU(NNEU), .TSTEPS(64)) u_snn (
+    // dont_touch 实例级保护: 防止后综合优化把 SNN 计算链 (LIF/突触) 判为
+    // 死逻辑挖空 (spike_cnt 经 AXI 读回是真实负载, 但 Vivado 仍会删)
+    (* dont_touch = "true" *) snn_top #(.NIN(64), .NNEU(NNEU), .TSTEPS(64)) u_snn (
         .clk(clk_proc), .rst_n(rst_n_proc),
         .act_wr(act_wr_eff), .act_idx(act_idx_p2), .act_wdata(act_wdata_p2),
         .run_start(snn_run_p | snn_run_auto), .vth(snn_vth_p2r),
@@ -323,21 +443,61 @@ module vision_top #(
         .clk(clk_pix), .rst_n(rst_n_pix),
         .mode_raw(mode_raw), .vsync(vs), .mode(mode_sync));
 
-    // (Canny 输出叠加与 color_map/hdmi_tx 的帧缓冲显示为 Phase 9 板级
-    //  适配内容: proc->pix 需双时钟帧存; 仿真验证见 tb_display/tb_canny)
+    // ------------------------------------------------------------------
+    // 显示链 (Phase 9): 通道 0 edge → 乒乓帧存 (proc→pix) → color_map
+    // → hdmi_tx TMDS 码字。gray 不入帧存 (8bit 全分辨率乒乓需 134 BRAM
+    // 超预算), 模式 0/1 的灰度背景为黑; 模式 1/2/3 完整可用。
+    // snn_heat 为 proc 域计数器准静态直采 (撕裂仅影响热图一行内刷新)
+    // ------------------------------------------------------------------
+    // 写地址含 DSP 乘法 (y*W+x), 打一拍再进帧存 (时序收敛, 1 拍延迟无害)
+    wire [19:0] fb_waddr_c = ep_y * IMG_W + ep_x;
+    wire [19:0] fb_raddr   = dsp_y * IMG_W + dsp_x;
+    wire        fb_rd;
 
-    assign tmds_r = 10'd0;
-    assign tmds_g = 10'd0;
-    assign tmds_b = 10'd0;
-    assign tmds_clk = 10'b0000011111;
+    reg [19:0] fb_waddr_r;
+    reg        fb_we_r, fb_wd_r, fb_fe_r;
+    always @(posedge clk_proc or negedge rst_n_proc) begin
+        if (!rst_n_proc) begin
+            fb_waddr_r <= 0; fb_we_r <= 0; fb_wd_r <= 0; fb_fe_r <= 0;
+        end else begin
+            fb_waddr_r <= fb_waddr_c;
+            fb_we_r    <= e_valid_v[0];
+            fb_wd_r    <= e_edge_v[0];
+            fb_fe_r    <= e_eof_v[0];
+        end
+    end
+
+    framebuf_pp #(.IMG_W(IMG_W), .IMG_H(IMG_H)) u_fb (
+        .wclk(clk_proc), .wrst_n(rst_n_proc),
+        .we(fb_we_r), .waddr(fb_waddr_r), .wd(fb_wd_r),
+        .w_frame_end(fb_fe_r),
+        .rclk(clk_pix), .rrst_n(rst_n_pix),
+        .r_vs(vs), .raddr(fb_raddr), .rd(fb_rd)
+    );
+
+    wire [23:0] disp_rgb;
+    wire        disp_de;
+
+    color_map u_cmap (
+        .clk(clk_pix), .rst_n(rst_n_pix),
+        .mode(mode_sync), .gray(8'h00), .edge_bit(fb_rd),
+        .snn_heat(snn_cnt), .disp_y(dsp_y), .in_de(de),
+        .rgb(disp_rgb), .out_de(disp_de));
+
+    hdmi_tx u_tx (
+        .clk_pix(clk_pix), .rst_n(rst_n_pix),
+        .rgb(disp_rgb), .de(disp_de), .hs_sync(hs), .vs_sync(vs),
+        .tmds_r_ch(tmds_r), .tmds_g_ch(tmds_g), .tmds_b_ch(tmds_b),
+        .tmds_clk_word(tmds_clk),
+        .bal_r(), .bal_g(), .bal_b());
 
     // ------------------------------------------------------------------
-    assign sim_e_valid = e_valid;
-    assign sim_e_edge  = e_edge;
-    assign sim_e_eof   = e_eof;
+    assign sim_e_valid = e_valid_v;
+    assign sim_e_edge  = e_edge_v;
+    assign sim_e_eof   = e_eof_v;
 
-    // LED: {cfg_done+id_ok, 活动指示}
+    // LED: {cfg_done+id_ok, 通道 0 活动指示}
     // ------------------------------------------------------------------
-    assign led = {cfg_done & id_ok, e_valid};
+    assign led = {cfg_done & id_ok, e_valid_v[0]};
 
 endmodule
