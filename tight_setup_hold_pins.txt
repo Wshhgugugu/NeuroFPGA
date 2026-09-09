@@ -1,7 +1,0 @@
-+====================+===================+==============================================+
-| Launch Setup Clock | Launch Hold Clock | Pin                                          |
-+====================+===================+==============================================+
-| clk_proc           | clk_proc          | g_chan[0].u_canny/u_hyst/m_edge_d_reg/D      |
-| clk_proc           | clk_proc          | g_chan[1].u_canny/u_hyst/m_edge_d_reg/D      |
-| clk_proc           | clk_proc          | g_chan[1].u_canny/u_hyst/win_data_r_reg[0]/D |
-+--------------------+-------------------+----------------------------------------------+
